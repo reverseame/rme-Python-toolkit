@@ -1,6 +1,6 @@
 # 🤝 Contributing
 
-Thank you for your interest in contributing to **RME Toolkit**!  
+Thank you for your interest in contributing to **RME Toolkit**!
 This guide will walk you through setting up your environment, maintaining code quality, testing, and submitting changes.
 
 ## 1. Set Up Your Development Environment
@@ -19,7 +19,7 @@ cd rme-toolkit
 ```bash
 # Create and activate virtual environment
 uv venv
-source venv/bin/activate    # On Windows: .\venv\Scripts\activate
+source .venv/bin/activate    # On Windows: .\venv\Scripts\activate
 ```
 
 ```bash
@@ -27,6 +27,12 @@ source venv/bin/activate    # On Windows: .\venv\Scripts\activate
 # Create and activate virtual environment
 uv pip install -r requirements.txt
 ```
+
+> [!NOTE] If you don't have a `requirements.txt` yet, you can generate it from your `pyproject.toml` using:
+>
+> ```bash
+> uv pip compile pyproject.toml > requirements.txt
+> ```
 
 ```bash
 # Install pre-commit hooks
