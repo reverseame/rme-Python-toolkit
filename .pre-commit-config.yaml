@@ -1,0 +1,31 @@
+repos:
+  # Ruff: ultra-fast linter that replaces flake8, isort, pyupgrade, etc.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.5
+    hooks:
+      - id: ruff
+        args: ["--fix"] # Auto-fixes issues when possible
+
+  # Pre-commit hooks: general file hygiene and safety checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict # Fails on unresolved merge conflicts
+      - id: end-of-file-fixer # Ensures one trailing newline
+      - id: trailing-whitespace # Removes trailing whitespace
+      - id: mixed-line-ending
+        args: [--fix=lf] # Enforces Unix-style LF endings
+      - id: check-added-large-files
+        args: ["--maxkb=500"] # Blocks files >500 KB
+      - id: detect-private-key # Prevents committing private keys
+      - id: debug-statements # Catches print() and breakpoint()
+      - id: check-yaml # Verifies valid YAML syntax
+      - id: check-toml # Verifies valid TOML syntax
+      - id: check-json # Verifies valid JSON syntax
+
+  # Commitizen: enforce Conventional Commits in commit messages
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.24.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg] # Runs only on commit message to validate format

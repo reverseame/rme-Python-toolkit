@@ -1,0 +1,44 @@
+[project]
+name = "rme-toolkit"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["ruff", "pytest", "pytest-cov", "pre-commit", "commitizen"]
+
+[tool.ruff]
+# Maximum allowed line length for code lines.
+# Default: 88
+# Reference: https://docs.astral.sh/ruff/settings/#line-length
+line-length = 88
+
+# Target Python version for linting and code upgrades.
+# Acceptable values: "py36", "py37", "py38", "py39", "py310", "py311", "py312"
+# Default: Inferred from 'requires-python' in 'pyproject.toml' or defaults to "py39"
+# Reference: https://docs.astral.sh/ruff/settings/#target-version
+target-version = "py39"
+
+# Enable automatic fixing of linting violations when running 'ruff check --fix'.
+# Only safe fixes are applied unless '--unsafe-fixes' is specified.
+# Default: false
+# Reference: https://docs.astral.sh/ruff/settings/#fix
+fix = true
+
+[tool.ruff.lint]
+# Select specific categories of linting rules to enable.
+# Categories:
+#   - "E": pycodestyle (PEP 8 style errors)
+#   - "F": Pyflakes (logical errors)
+#   - "I": isort (import sorting)
+#   - "UP": pyupgrade (Python syntax upgrades)
+# Default: ["E4", "E7", "E9", "F"]
+# Reference: https://docs.astral.sh/ruff/settings/#select
+select = ["E", "F", "I", "UP"]
+
+# Ignore specific rules that may conflict with other tools or project preferences.
+# Ignored Rules:
+#   - "E501": Line too long (handled by code formatter like Black)
+#   - "F401": Module imported but unused (can be noisy in certain contexts)
+# Default: []
+# Reference: https://docs.astral.sh/ruff/settings/#ignore
+ignore = ["E501", "F401"]
