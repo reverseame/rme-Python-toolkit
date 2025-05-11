@@ -136,7 +136,13 @@ mkdir -p packages/my_package/tests
 
 ```bash
 # Initialize pyproject.toml using uv
-uv init
+cd packages
+uv init --package my_new_package
+```
+
+```bash
+# Run it
+uv run my-new-package
 ```
 
 </details>
