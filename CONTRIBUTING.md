@@ -120,7 +120,7 @@ cz bump --changelog
 
 ## 6. Add a New Package
 
-All packages live under `packages/` and use the root environment, no individual `pyproject.toml` is needed.
+All packages live under `packages/` and use the root environment.
 
 <details> <summary><strong>Show package creation steps</strong></summary>
 
