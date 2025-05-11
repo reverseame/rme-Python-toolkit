@@ -126,7 +126,7 @@ All packages live under `packages/` and use the root environment, no individual 
 
 ```bash
 # Create a new package folder
-mkdir packages/my_package
+mkdir -p packages/my_package
 ```
 
 ```bash
