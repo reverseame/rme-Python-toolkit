@@ -1,19 +1,21 @@
-from rich.console import Console
-from rich.text import Text
+import logging
 
-console = Console()
+from rich.logging import RichHandler
 
 
-def log(message: str, level: str = "info") -> None:
-    styles = {
-        "info": "white",
-        "success": "green",
-        "warning": "yellow",
-        "error": "bold red",
-        "debug": "dim",
-    }
+def configure_logger(verbosity: int):
+    """Configure root logger with rich formatting and verbosity control."""
+    levels = [logging.WARNING, logging.INFO, logging.DEBUG]
+    level = levels[min(verbosity, len(levels) - 1)]
 
-    style = styles.get(level, "white")
-    text = Text()
-    text.append(f"{message}", style=style)
-    console.print(text)
+    logging.basicConfig(
+        level=level,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[RichHandler(rich_tracebacks=True, markup=True)],
+    )
+
+
+def get_logger(name: str) -> logging.Logger:
+    """Return a logger scoped to the given module name."""
+    return logging.getLogger(name)

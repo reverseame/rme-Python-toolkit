@@ -2,66 +2,87 @@ from typing import Any, Union
 
 from ioc_extractor.rules.registry import _operator_registry
 from ioc_extractor.utils.helpers import apply_modifiers, resolve_selector
+from ioc_extractor.utils.logger import get_logger
 
+logger = get_logger(__name__)
 
 def evaluate_conditions(value: Any, where: dict[str, Any]) -> bool:
     """
     Recursively evaluate the 'where' clause against the given value.
-    Supports empty conditions (always true), logical operators (and/or/not),
-    and a default implicit AND for multiple operators at the same level.
+    Supports logical operators and implicit AND.
     """
-    # If there are no conditions, default to True
     if not where:
+        logger.debug("No conditions specified; defaulting to True")
         return True
 
-    # Logical combinators
-    if "and" in where:
-        return all(evaluate_conditions(value, cond) for cond in where["and"])
-    if "or" in where:
-        return any(evaluate_conditions(value, cond) for cond in where["or"])
-    if "not" in where:
-        return not evaluate_conditions(value, where["not"])
+    try:
+        if "and" in where:
+            result = all(evaluate_conditions(value, cond) for cond in where["and"])
+            return result
+        if "or" in where:
+            result = any(evaluate_conditions(value, cond) for cond in where["or"])
+            return result
+        if "not" in where:
+            result = not evaluate_conditions(value, where["not"])
+            return result
 
-    # Implicit AND for multiple operators at the same level
-    results = []
-    for op, operand in where.items():
-        if op not in _operator_registry:
-            raise ValueError(f"Unsupported operator: {op}")
-        results.append(_operator_registry[op](value, operand))
-    return all(results)
+        results = []
+        for op, operand in where.items():
+            if op not in _operator_registry:
+                logger.error(f"Unsupported operator: '{op}'")
+                raise ValueError(f"Unsupported operator: {op}")
+            result = _operator_registry[op](value, operand)
+            results.append(result)
+        final = all(results)
+        return final
 
+    except Exception as e:
+        logger.error(f"Error evaluating conditions: {e}", exc_info=True)
+        raise
 
-def process_select(
-    entry: dict[str, Any], select: list[dict[str, Any]]
-) -> dict[str, Any]:
+def process_select(entry: dict[str, Any], select: list[dict[str, Any]]) -> dict[str, Any]:
     selected: dict[str, Any] = {}
-    for sel in select:
-        field = sel["field"]
-        alias = sel.get("alias", field)
-        transforms = sel.get("transform", [])
-        val = resolve_selector(entry, field)
-        if isinstance(val, str) and transforms:
-            val = apply_modifiers(val, transforms)
-        selected[alias] = val
+    try:
+        for sel in select:
+            field = sel["field"]
+            alias = sel.get("alias", field)
+            transforms = sel.get("transform", [])
+            val = resolve_selector(entry, field)
+            logger.debug(f"Resolved field '{field}' to value: {val}")
 
-    return {
-        "id": entry.get("id", "?"),
-        "api": entry.get("api", "?"),
-        "fields": selected,
-    }
+            if isinstance(val, str) and transforms:
+                val = apply_modifiers(val, transforms)
+                logger.debug(f"Applied transforms on '{field}': {transforms} -> {val}")
 
+            selected[alias] = val
 
-def execute_rule(
-    entry: dict[str, Any], rule: dict[str, Any]
-) -> Union[dict[str, Any], None]:
+        return {
+            "id": entry.get("id", "?"),
+            "api": entry.get("api", "?"),
+            "fields": selected,
+        }
+    except Exception as e:
+        logger.error(f"Error during field selection and transformation: {e}", exc_info=True)
+        raise
+
+def execute_rule(entry: dict[str, Any], rule: dict[str, Any]) -> Union[dict[str, Any], None]:
     """
     Apply a single rule to an entry.
-    Returns the selected result dict if the rule matches, or None otherwise.
+    Returns selected data if the rule matches.
     """
-    scope = rule.get("from")
-    value = resolve_selector(entry, scope)
-    if value is None:
+    try:
+        scope = rule.get("from")
+        value = resolve_selector(entry, scope)
+        if value is None:
+            logger.debug(f"Scope '{scope}' not found in entry; skipping rule '{rule.get('name')}'")
+            return None
+
+        if not evaluate_conditions(value, rule.get("where", {})):
+            return None
+
+        result = process_select(entry, rule.get("select", []))
+        return result
+
+    except Exception as e:
+        logger.warning(f"Failed to execute rule '{rule.get('name')}' on entry: {e}", exc_info=True)
         return None
-    if not evaluate_conditions(value, rule.get("where", {})):
-        return None
-    return process_select(entry, rule.get("select", []))
