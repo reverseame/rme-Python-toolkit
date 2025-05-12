@@ -46,7 +46,7 @@ pre-commit install
 
 ```bash
 # Example: run a module from a package
-python packages/package_a/main.py
+uv run package-a
 ```
 
 ## 🤝 Contributing
