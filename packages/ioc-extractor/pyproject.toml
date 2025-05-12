@@ -1,0 +1,15 @@
+[project]
+name = "ioc-extractor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Hec7orci7o" }]
+requires-python = ">=3.12"
+dependencies = ["python-dotenv", "rich", "ijson", "psutil"]
+
+[project.scripts]
+ioc-extractor = "ioc_extractor:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
