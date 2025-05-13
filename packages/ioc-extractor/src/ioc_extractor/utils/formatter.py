@@ -4,7 +4,7 @@ from ioc_extractor.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-FIELD_NAME_WIDTH = 24
+FIELD_NAME_WIDTH = 18
 INDENTATION = "    "
 
 def print_match(

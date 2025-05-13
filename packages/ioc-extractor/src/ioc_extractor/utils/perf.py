@@ -9,18 +9,19 @@ from ioc_extractor.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def monitor_performance(
-    stats: dict[str, Any], stop_event: threading.Event, interval: float = 0.5
+    stats: dict[str, Any],
+    stop_event: threading.Event,
+    interval: float = 0.5
 ) -> None:
     proc = psutil.Process()
     num_cores = psutil.cpu_count(logical=True)
     while not stop_event.is_set():
-        # Normalize total CPU usage to a 0-100% range
+        # Normaliza uso total de CPU en porcentaje
         total_cpu = proc.cpu_percent(interval=None) / num_cores
         stats.setdefault("cpu", []).append(total_cpu)
-        stats.setdefault("per_core", []).append(
-            psutil.cpu_percent(interval=None, percpu=True)
-        )
+        stats.setdefault("per_core", []).append(psutil.cpu_percent(interval=None, percpu=True))
         stats.setdefault("mem", []).append(proc.memory_info().rss / 1024**2)
         time.sleep(interval)
 

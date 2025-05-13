@@ -28,7 +28,7 @@ uv pip install -r requirements.txt
 ### 3. Run the Tool
 
 ```bash
-uv run ioc-extractor --input <input_file.json> --patterns <patterns_file.json> [-v]
+uv run ioc-extractor --input <input_file.json> --patterns <patterns_file.yaml> [-v]
 ```
 
 ## ✨ Features

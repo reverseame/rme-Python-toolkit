@@ -1,0 +1,32 @@
+meta:
+  name: # Rule name (e.g., Suspicious API Call)
+  description: # Short description of what the rule detects
+  categories:
+    -  # Example: process, network, file, registry
+  tags:
+    -  # Custom tags (e.g., evasion, injection)
+  mbcs:
+    -  # Optional: MBC (Malware Behavior Catalog) code
+  att&ck:
+    -  # Optional: MITRE ATT&CK technique ID (e.g., T1059)
+  authors:
+    - reverseame # Add more authors if needed
+  version: "1.0"
+
+variants:
+  - select: # Targeted events or data selection
+    where: # Detection logic
+      and: # All of the following conditions must be true
+        - regex: ["api", "(?i)^(Nt|Zw)(Create|Open)File"] # Case-insensitive regex match
+        - not:
+            regex: ["module", "(?i)^KERNELBASE.dll"] # Does NOT match this regex
+        - eq: ["status", "failed"] # Exact match
+        - contains: ["command_line", "powershell"] # Substring presence
+        - startswith: ["image", "C:\\Windows\\System32\\"] # Starts with this prefix
+        - endswith: ["image", ".exe"] # Ends with this suffix
+        - in: ["process_name", ["cmd.exe", "powershell.exe"]] # Value is in a list
+        - gt: ["size", 1000000] # Greater than
+        - lt: ["size", 4096] # Less than
+      or: # At least one of the following must be true
+        - eq: ["event_type", "write"]
+        - eq: ["event_type", "delete"]

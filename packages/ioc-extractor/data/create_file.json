@@ -1,0 +1,1528 @@
+[
+  {
+    "id": "179",
+    "datetime": "",
+    "time": "6:49:27.392 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "create_file.exe",
+    "category": "",
+    "api": "CreateFileA ( \"createfile_test.txt\", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL )",
+    "return_type": "",
+    "return_value": "0x000000000000010c",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0006967",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "LPCTSTR",
+        "name": "lpFileName",
+        "pre_value": "0x00007ff6125d7034 \"createfile_test.txt\"",
+        "post_value": "0x00007ff6125d7034 \"createfile_test.txt\""
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "dwDesiredAccess",
+        "pre_value": "GENERIC_WRITE",
+        "post_value": "GENERIC_WRITE"
+      },
+      {
+        "id": "3",
+        "type": "DWORD",
+        "name": "dwShareMode",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "4",
+        "type": "LPSECURITY_ATTRIBUTES",
+        "name": "lpSecurityAttributes",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "5",
+        "type": "DWORD",
+        "name": "dwCreationDisposition",
+        "pre_value": "CREATE_ALWAYS",
+        "post_value": "CREATE_ALWAYS"
+      },
+      {
+        "id": "6",
+        "type": "DWORD",
+        "name": "dwFlagsAndAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "HANDLE",
+        "name": "hTemplateFile",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "",
+        "type": "HANDLE",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "0x000000000000010c"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d140d",
+        "offset": "0x140d",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d12c4",
+        "offset": "0x12c4",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d132e",
+        "offset": "0x132e",
+        "location": ""
+      },
+      {
+        "id": "4",
+        "module": "KERNEL32.DLL",
+        "address": "0x00007ff846a27374",
+        "offset": "0x17374",
+        "location": "BaseThreadInitThunk + 0x14"
+      }
+    ]
+  },
+  {
+    "id": "184",
+    "datetime": "",
+    "time": "6:49:27.392 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "KERNELBASE.dll",
+    "category": "",
+    "api": "NtCreateFile ( 0x00000000005ff9f0, FILE_READ_ATTRIBUTES | GENERIC_WRITE | SYNCHRONIZE, 0x00000000005ffa50, 0x00000000005ff9f8, NULL, FILE_ATTRIBUTE_NORMAL, 0, FILE_OVERWRITE_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 )",
+    "return_type": "",
+    "return_value": "STATUS_SUCCESS",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0006664",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x00000000005ff9f0 = 0x01dbc40dd7eea078",
+        "post_value": "0x00000000005ff9f0 = 0x000000000000010c"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "FILE_READ_ATTRIBUTES | GENERIC_WRITE | SYNCHRONIZE",
+        "post_value": "FILE_READ_ATTRIBUTES | GENERIC_WRITE | SYNCHRONIZE"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x00000000005ffa50 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ffa18  ...}",
+        "post_value": "0x00000000005ffa50 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ffa18  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x00000000005ff9f8 = { { Status = 0x39856909, Pointer = 0x00007ff839856909 }, Information = 27000975 }",
+        "post_value": "0x00000000005ff9f8 = { { Status = STATUS_SUCCESS, Pointer = 0x00007ff800000000 }, Information = 3 }"
+      },
+      {
+        "id": "5",
+        "type": "PLARGE_INTEGER",
+        "name": "AllocationSize",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "FileAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "8",
+        "type": "ULONG",
+        "name": "CreateDisposition",
+        "pre_value": "FILE_OVERWRITE_IF",
+        "post_value": "FILE_OVERWRITE_IF"
+      },
+      {
+        "id": "9",
+        "type": "ULONG",
+        "name": "CreateOptions",
+        "pre_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "10",
+        "type": "PVOID",
+        "name": "EaBuffer",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "11",
+        "type": "ULONG",
+        "name": "EaLength",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_SUCCESS"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd1a09",
+        "offset": "0x31a09",
+        "location": "CreateFileW + 0x5f9"
+      },
+      {
+        "id": "2",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd13ce",
+        "offset": "0x313ce",
+        "location": "CreateFileA + 0xae"
+      }
+    ]
+  },
+  {
+    "id": "184",
+    "datetime": "",
+    "time": "6:49:27.392 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "KERNELBASE.dll",
+    "category": "",
+    "api": "NtCreateFile ( 0x00000000005ff9f0, FILE_READ_ATTRIBUTES | GENERIC_WRITE | SYNCHRONIZE, 0x00000000005ffa50, 0x00000000005ff9f8, NULL, FILE_ATTRIBUTE_NORMAL, 0, FILE_OVERWRITE_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 )",
+    "return_type": "",
+    "return_value": "STATUS_SUCCESS",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0006664",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x00000000005ff9f0 = 0x01dbc40dd7eea078",
+        "post_value": "0x00000000005ff9f0 = 0x000000000000010c"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "FILE_READ_ATTRIBUTES | GENERIC_WRITE | SYNCHRONIZE",
+        "post_value": "FILE_READ_ATTRIBUTES | GENERIC_WRITE | SYNCHRONIZE"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x00000000005ffa50 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ffa18  ...}",
+        "post_value": "0x00000000005ffa50 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ffa18  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x00000000005ff9f8 = { { Status = 0x39856909, Pointer = 0x00007ff839856909 }, Information = 27000975 }",
+        "post_value": "0x00000000005ff9f8 = { { Status = STATUS_SUCCESS, Pointer = 0x00007ff800000000 }, Information = 3 }"
+      },
+      {
+        "id": "5",
+        "type": "PLARGE_INTEGER",
+        "name": "AllocationSize",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "FileAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "8",
+        "type": "ULONG",
+        "name": "CreateDisposition",
+        "pre_value": "FILE_OVERWRITE_IF",
+        "post_value": "FILE_OVERWRITE_IF"
+      },
+      {
+        "id": "9",
+        "type": "ULONG",
+        "name": "CreateOptions",
+        "pre_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "10",
+        "type": "PVOID",
+        "name": "EaBuffer",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "11",
+        "type": "ULONG",
+        "name": "EaLength",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_SUCCESS"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd1a09",
+        "offset": "0x31a09",
+        "location": "CreateFileW + 0x5f9"
+      },
+      {
+        "id": "2",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd13ce",
+        "offset": "0x313ce",
+        "location": "CreateFileA + 0xae"
+      }
+    ]
+  },
+  {
+    "id": "333",
+    "datetime": "",
+    "time": "6:49:27.392 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "create_file.exe",
+    "category": "",
+    "api": "fopen ( \"fopen_test.txt\", \"w+\" )",
+    "return_type": "",
+    "return_value": "0x00007ff84719fa90",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0004741",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "const char*",
+        "name": "filename",
+        "pre_value": "0x00007ff6125d70b1 \"fopen_test.txt\"",
+        "post_value": "0x00007ff6125d70b1 \"fopen_test.txt\""
+      },
+      {
+        "id": "2",
+        "type": "const char*",
+        "name": "mode",
+        "pre_value": "0x00007ff6125d70ae \"w+\"",
+        "post_value": "0x00007ff6125d70ae \"w+\""
+      },
+      {
+        "id": "",
+        "type": "FILE*",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "0x00007ff84719fa90"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d149f",
+        "offset": "0x149f",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d12c4",
+        "offset": "0x12c4",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d132e",
+        "offset": "0x132e",
+        "location": ""
+      },
+      {
+        "id": "4",
+        "module": "KERNEL32.DLL",
+        "address": "0x00007ff846a27374",
+        "offset": "0x17374",
+        "location": "BaseThreadInitThunk + 0x14"
+      }
+    ]
+  },
+  {
+    "id": "341",
+    "datetime": "",
+    "time": "6:49:27.424 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "KERNELBASE.dll",
+    "category": "",
+    "api": "NtCreateFile ( 0x00000000005ff7c0, FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE, 0x00000000005ff820, 0x00000000005ff7c8, NULL, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_OVERWRITE_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 )",
+    "return_type": "",
+    "return_value": "STATUS_SUCCESS",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0004060",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x00000000005ff7c0 = 0x01dbc40dd7eea078",
+        "post_value": "0x00000000005ff7c0 = 0x000000000000009c"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE",
+        "post_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x00000000005ff820 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff7e8  ...}",
+        "post_value": "0x00000000005ff820 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff7e8  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x00000000005ff7c8 = { { Status = 0x39856abe, Pointer = 0x00007ff839856abe }, Information = 332 }",
+        "post_value": "0x00000000005ff7c8 = { { Status = STATUS_SUCCESS, Pointer = 0x00007ff800000000 }, Information = 3 }"
+      },
+      {
+        "id": "5",
+        "type": "PLARGE_INTEGER",
+        "name": "AllocationSize",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "FileAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "FILE_SHARE_READ | FILE_SHARE_WRITE",
+        "post_value": "FILE_SHARE_READ | FILE_SHARE_WRITE"
+      },
+      {
+        "id": "8",
+        "type": "ULONG",
+        "name": "CreateDisposition",
+        "pre_value": "FILE_OVERWRITE_IF",
+        "post_value": "FILE_OVERWRITE_IF"
+      },
+      {
+        "id": "9",
+        "type": "ULONG",
+        "name": "CreateOptions",
+        "pre_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "10",
+        "type": "PVOID",
+        "name": "EaBuffer",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "11",
+        "type": "ULONG",
+        "name": "EaLength",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_SUCCESS"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd1a09",
+        "offset": "0x31a09",
+        "location": "CreateFileW + 0x5f9"
+      },
+      {
+        "id": "2",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd13ce",
+        "offset": "0x313ce",
+        "location": "CreateFileA + 0xae"
+      },
+      {
+        "id": "3",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712db2e",
+        "offset": "0x1db2e",
+        "location": "_sopen_s + 0x2ae"
+      },
+      {
+        "id": "4",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712d82f",
+        "offset": "0x1d82f",
+        "location": "_sopen + 0xcf"
+      }
+    ]
+  },
+  {
+    "id": "473",
+    "datetime": "",
+    "time": "6:49:27.424 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "create_file.exe",
+    "category": "",
+    "api": "_open ( \"open_test.txt\", _O_CREAT | _O_RDWR, _S_IREAD | _S_IWRITE )",
+    "return_type": "",
+    "return_value": "3",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0001321",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "const char*",
+        "name": "filename",
+        "pre_value": "0x00007ff6125d7112 \"open_test.txt\"",
+        "post_value": "0x00007ff6125d7112 \"open_test.txt\""
+      },
+      {
+        "id": "2",
+        "type": "int",
+        "name": "oflag",
+        "pre_value": "_O_CREAT | _O_RDWR",
+        "post_value": "_O_CREAT | _O_RDWR"
+      },
+      {
+        "id": "3",
+        "type": "int",
+        "name": "pmode",
+        "pre_value": "_S_IREAD | _S_IWRITE",
+        "post_value": "_S_IREAD | _S_IWRITE"
+      },
+      {
+        "id": "",
+        "type": "int",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "3"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d1511",
+        "offset": "0x1511",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d12c4",
+        "offset": "0x12c4",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d132e",
+        "offset": "0x132e",
+        "location": ""
+      },
+      {
+        "id": "4",
+        "module": "KERNEL32.DLL",
+        "address": "0x00007ff846a27374",
+        "offset": "0x17374",
+        "location": "BaseThreadInitThunk + 0x14"
+      }
+    ]
+  },
+  {
+    "id": "478",
+    "datetime": "",
+    "time": "6:49:27.424 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "KERNELBASE.dll",
+    "category": "",
+    "api": "NtCreateFile ( 0x00000000005ff8d0, FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE, 0x00000000005ff930, 0x00000000005ff8d8, NULL, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_OPEN_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 )",
+    "return_type": "",
+    "return_value": "STATUS_SUCCESS",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0001145",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x00000000005ff8d0 = 0x01dbc40dd7f38085",
+        "post_value": "0x00000000005ff8d0 = 0x00000000000000a0"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE",
+        "post_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x00000000005ff930 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff8f8  ...}",
+        "post_value": "0x00000000005ff930 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff8f8  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x00000000005ff8d8 = { { Status = 0x018f0300, Pointer = 0x00000000018f0300 }, Information = 32 }",
+        "post_value": "0x00000000005ff8d8 = { { Status = STATUS_SUCCESS, Pointer = NULL }, Information = 1 }"
+      },
+      {
+        "id": "5",
+        "type": "PLARGE_INTEGER",
+        "name": "AllocationSize",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "FileAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "FILE_SHARE_READ | FILE_SHARE_WRITE",
+        "post_value": "FILE_SHARE_READ | FILE_SHARE_WRITE"
+      },
+      {
+        "id": "8",
+        "type": "ULONG",
+        "name": "CreateDisposition",
+        "pre_value": "FILE_OPEN_IF",
+        "post_value": "FILE_OPEN_IF"
+      },
+      {
+        "id": "9",
+        "type": "ULONG",
+        "name": "CreateOptions",
+        "pre_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "10",
+        "type": "PVOID",
+        "name": "EaBuffer",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "11",
+        "type": "ULONG",
+        "name": "EaLength",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_SUCCESS"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd1a09",
+        "offset": "0x31a09",
+        "location": "CreateFileW + 0x5f9"
+      },
+      {
+        "id": "2",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd13ce",
+        "offset": "0x313ce",
+        "location": "CreateFileA + 0xae"
+      },
+      {
+        "id": "3",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712db2e",
+        "offset": "0x1db2e",
+        "location": "_sopen_s + 0x2ae"
+      },
+      {
+        "id": "4",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712d6fd",
+        "offset": "0x1d6fd",
+        "location": "_open + 0x7d"
+      }
+    ]
+  },
+  {
+    "id": "613",
+    "datetime": "",
+    "time": "6:49:27.455 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "KERNELBASE.dll",
+    "category": "",
+    "api": "NtCreateFile ( 0x00000000005ff790, FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE, 0x00000000005ff7f0, 0x00000000005ff798, NULL, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_OVERWRITE_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 )",
+    "return_type": "",
+    "return_value": "STATUS_SUCCESS",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0002198",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x00000000005ff790 = 0x01dbc40dd7f83ba1",
+        "post_value": "0x00000000005ff790 = 0x0000000000000054"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE",
+        "post_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x00000000005ff7f0 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff7b8  ...}",
+        "post_value": "0x00000000005ff7f0 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff7b8  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x00000000005ff798 = { { Status = 0x005ffaf0, Pointer = 0x00000000005ffaf0 }, Information = 20958686 }",
+        "post_value": "0x00000000005ff798 = { { Status = STATUS_SUCCESS, Pointer = NULL }, Information = 3 }"
+      },
+      {
+        "id": "5",
+        "type": "PLARGE_INTEGER",
+        "name": "AllocationSize",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "FileAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "FILE_SHARE_READ | FILE_SHARE_WRITE",
+        "post_value": "FILE_SHARE_READ | FILE_SHARE_WRITE"
+      },
+      {
+        "id": "8",
+        "type": "ULONG",
+        "name": "CreateDisposition",
+        "pre_value": "FILE_OVERWRITE_IF",
+        "post_value": "FILE_OVERWRITE_IF"
+      },
+      {
+        "id": "9",
+        "type": "ULONG",
+        "name": "CreateOptions",
+        "pre_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "10",
+        "type": "PVOID",
+        "name": "EaBuffer",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "11",
+        "type": "ULONG",
+        "name": "EaLength",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_SUCCESS"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd1a09",
+        "offset": "0x31a09",
+        "location": "CreateFileW + 0x5f9"
+      },
+      {
+        "id": "2",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd13ce",
+        "offset": "0x313ce",
+        "location": "CreateFileA + 0xae"
+      },
+      {
+        "id": "3",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712db2e",
+        "offset": "0x1db2e",
+        "location": "_sopen_s + 0x2ae"
+      },
+      {
+        "id": "4",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712d82f",
+        "offset": "0x1d82f",
+        "location": "_sopen + 0xcf"
+      }
+    ]
+  },
+  {
+    "id": "669",
+    "datetime": "",
+    "time": "6:49:27.455 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "create_file.exe",
+    "category": "",
+    "api": "_open ( \"fdopen_test.txt\", _O_CREAT | _O_RDWR, _S_IREAD | _S_IWRITE )",
+    "return_type": "",
+    "return_value": "1",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0001497",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "const char*",
+        "name": "filename",
+        "pre_value": "0x00007ff6125d71d6 \"fdopen_test.txt\"",
+        "post_value": "0x00007ff6125d71d6 \"fdopen_test.txt\""
+      },
+      {
+        "id": "2",
+        "type": "int",
+        "name": "oflag",
+        "pre_value": "_O_CREAT | _O_RDWR",
+        "post_value": "_O_CREAT | _O_RDWR"
+      },
+      {
+        "id": "3",
+        "type": "int",
+        "name": "pmode",
+        "pre_value": "_S_IREAD | _S_IWRITE",
+        "post_value": "_S_IREAD | _S_IWRITE"
+      },
+      {
+        "id": "",
+        "type": "int",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "1"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d15f7",
+        "offset": "0x15f7",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d12c4",
+        "offset": "0x12c4",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "create_file.exe",
+        "address": "0x00007ff6125d132e",
+        "offset": "0x132e",
+        "location": ""
+      },
+      {
+        "id": "4",
+        "module": "KERNEL32.DLL",
+        "address": "0x00007ff846a27374",
+        "offset": "0x17374",
+        "location": "BaseThreadInitThunk + 0x14"
+      }
+    ]
+  },
+  {
+    "id": "674",
+    "datetime": "",
+    "time": "6:49:27.455 AM",
+    "elapsed": "",
+    "thread": "1",
+    "tid": "",
+    "module": "KERNELBASE.dll",
+    "category": "",
+    "api": "NtCreateFile ( 0x00000000005ff8d0, FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE, 0x00000000005ff930, 0x00000000005ff8d8, NULL, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ | FILE_SHARE_WRITE, FILE_OPEN_IF, FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0 )",
+    "return_type": "",
+    "return_value": "STATUS_SUCCESS",
+    "return_address": "",
+    "error": "",
+    "duration": "0.0000611",
+    "function_category": "",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x00000000005ff8d0 = 0x01dbc40dd7f83ba1",
+        "post_value": "0x00000000005ff8d0 = 0x0000000000000054"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE",
+        "post_value": "FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x00000000005ff930 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff8f8  ...}",
+        "post_value": "0x00000000005ff930 = { Length = 48, RootDirectory = 0x0000000000000040, ObjectName = 0x00000000005ff8f8  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x00000000005ff8d8 = { { Status = 0x0198cf00, Pointer = 0x000000000198cf00 }, Information = 32 }",
+        "post_value": "0x00000000005ff8d8 = { { Status = STATUS_SUCCESS, Pointer = NULL }, Information = 1 }"
+      },
+      {
+        "id": "5",
+        "type": "PLARGE_INTEGER",
+        "name": "AllocationSize",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "FileAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "FILE_SHARE_READ | FILE_SHARE_WRITE",
+        "post_value": "FILE_SHARE_READ | FILE_SHARE_WRITE"
+      },
+      {
+        "id": "8",
+        "type": "ULONG",
+        "name": "CreateDisposition",
+        "pre_value": "FILE_OPEN_IF",
+        "post_value": "FILE_OPEN_IF"
+      },
+      {
+        "id": "9",
+        "type": "ULONG",
+        "name": "CreateOptions",
+        "pre_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "10",
+        "type": "PVOID",
+        "name": "EaBuffer",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "11",
+        "type": "ULONG",
+        "name": "EaLength",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_SUCCESS"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd1a09",
+        "offset": "0x31a09",
+        "location": "CreateFileW + 0x5f9"
+      },
+      {
+        "id": "2",
+        "module": "KERNELBASE.dll",
+        "address": "0x00007ff844dd13ce",
+        "offset": "0x313ce",
+        "location": "CreateFileA + 0xae"
+      },
+      {
+        "id": "3",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712db2e",
+        "offset": "0x1db2e",
+        "location": "_sopen_s + 0x2ae"
+      },
+      {
+        "id": "4",
+        "module": "msvcrt.dll",
+        "address": "0x00007ff84712d6fd",
+        "offset": "0x1d6fd",
+        "location": "_open + 0x7d"
+      }
+    ]
+  },
+  {
+    "id": "800",
+    "datetime": "5/13/2025 9:00:00 PM",
+    "time": "9:00:00.711 PM",
+    "elapsed": "0:00:00:029",
+    "thread": "1",
+    "tid": "3420",
+    "module": "create_file.exe",
+    "category": "File Systems",
+    "api": "NtCreateFile ( 0x0019ff08, 1073741824, 0x0019fec4, 0x0019fef4, 0x00000000, 128, 0, 5, 32, 0x00000000, 0 )",
+    "return_type": "NTSTATUS",
+    "return_value": "0xc000000d",
+    "return_address": "0x00311679",
+    "error": "0xc000000d = An invalid parameter was passed to a service or function. ",
+    "duration": "0.0000034",
+    "function_category": "NT Native / File Systems",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x0019ff08 = NULL",
+        "post_value": "0x0019ff08 = NULL"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "GENERIC_WRITE",
+        "post_value": "GENERIC_WRITE"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x0019fec4 = { Length = 24, RootDirectory = NULL, ObjectName = 0x0019fee4  ...}",
+        "post_value": "0x0019fec4 = { Length = 24, RootDirectory = NULL, ObjectName = 0x0019fee4  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x0019fef4 = { { Status = STATUS_SUCCESS, Pointer = NULL }, Information = 0 }",
+        "post_value": "0x0019fef4 = { { Status = STATUS_SUCCESS, Pointer = NULL }, Information = 0 }"
+      },
+      {
+        "id": "5",
+        "type": "PLARGE_INTEGER",
+        "name": "AllocationSize",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "FileAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "8",
+        "type": "ULONG",
+        "name": "CreateDisposition",
+        "pre_value": "FILE_OVERWRITE_IF",
+        "post_value": "FILE_OVERWRITE_IF"
+      },
+      {
+        "id": "9",
+        "type": "ULONG",
+        "name": "CreateOptions",
+        "pre_value": "FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "10",
+        "type": "PVOID",
+        "name": "EaBuffer",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "11",
+        "type": "ULONG",
+        "name": "EaLength",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_INVALID_PARAMETER"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x00311679",
+        "offset": "0x1679",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00311a09",
+        "offset": "0x1a09",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "KERNEL32.DLL",
+        "address": "0x7795fcc9",
+        "offset": "0x1fcc9",
+        "location": "BaseThreadInitThunk + 0x19"
+      },
+      {
+        "id": "4",
+        "module": "ntdll.dll",
+        "address": "0x77c2809e",
+        "offset": "0x6809e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0x11e"
+      },
+      {
+        "id": "5",
+        "module": "ntdll.dll",
+        "address": "0x77c2806e",
+        "offset": "0x6806e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0xee"
+      }
+    ]
+  },
+  {
+    "id": "801",
+    "datetime": "5/13/2025 9:00:00 PM",
+    "time": "9:00:00.711 PM",
+    "elapsed": "0:00:00:029",
+    "thread": "1",
+    "tid": "3420",
+    "module": "create_file.exe",
+    "category": "File Management",
+    "api": "CreateFileW ( \"C:\\Windows\\Temp\\ntopenfile_test.txt\", 1073741824, 0, 0x00000000, 2, 128, 0x00000000 )",
+    "return_type": "HANDLE",
+    "return_value": "0x000000a0",
+    "return_address": "0x003116e1",
+    "error": "",
+    "duration": "0.0002164",
+    "function_category": "Data Access and Storage / Local File Systems / File Management",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "LPCTSTR",
+        "name": "lpFileName",
+        "pre_value": "0x00317120 \"C:\\Windows\\Temp\\ntopenfile_test.txt\"",
+        "post_value": "0x00317120 \"C:\\Windows\\Temp\\ntopenfile_test.txt\""
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "dwDesiredAccess",
+        "pre_value": "GENERIC_WRITE",
+        "post_value": "GENERIC_WRITE"
+      },
+      {
+        "id": "3",
+        "type": "DWORD",
+        "name": "dwShareMode",
+        "pre_value": "0",
+        "post_value": "0"
+      },
+      {
+        "id": "4",
+        "type": "LPSECURITY_ATTRIBUTES",
+        "name": "lpSecurityAttributes",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "5",
+        "type": "DWORD",
+        "name": "dwCreationDisposition",
+        "pre_value": "CREATE_ALWAYS",
+        "post_value": "CREATE_ALWAYS"
+      },
+      {
+        "id": "6",
+        "type": "DWORD",
+        "name": "dwFlagsAndAttributes",
+        "pre_value": "FILE_ATTRIBUTE_NORMAL",
+        "post_value": "FILE_ATTRIBUTE_NORMAL"
+      },
+      {
+        "id": "7",
+        "type": "HANDLE",
+        "name": "hTemplateFile",
+        "pre_value": "NULL",
+        "post_value": "NULL"
+      },
+      {
+        "id": "",
+        "type": "HANDLE",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "0x000000a0"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x003116e1",
+        "offset": "0x16e1",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00311a09",
+        "offset": "0x1a09",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "KERNEL32.DLL",
+        "address": "0x7795fcc9",
+        "offset": "0x1fcc9",
+        "location": "BaseThreadInitThunk + 0x19"
+      },
+      {
+        "id": "4",
+        "module": "ntdll.dll",
+        "address": "0x77c2809e",
+        "offset": "0x6809e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0x11e"
+      },
+      {
+        "id": "5",
+        "module": "ntdll.dll",
+        "address": "0x77c2806e",
+        "offset": "0x6806e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0xee"
+      }
+    ]
+  },
+  {
+    "id": "802",
+    "datetime": "5/13/2025 9:00:00 PM",
+    "time": "9:00:00.711 PM",
+    "elapsed": "0:00:00:029",
+    "thread": "1",
+    "tid": "3420",
+    "module": "create_file.exe",
+    "category": "Handles and Objects",
+    "api": "CloseHandle ( 0x000000a0 )",
+    "return_type": "BOOL",
+    "return_value": "1",
+    "return_address": "0x003116f4",
+    "error": "",
+    "duration": "0.0000368",
+    "function_category": "System Services / Windows System Information / Handles and Objects",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "HANDLE",
+        "name": "hObject",
+        "pre_value": "0x000000a0",
+        "post_value": "0x000000a0"
+      },
+      {
+        "id": "",
+        "type": "BOOL",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "TRUE"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x003116f4",
+        "offset": "0x16f4",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00311a09",
+        "offset": "0x1a09",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "KERNEL32.DLL",
+        "address": "0x7795fcc9",
+        "offset": "0x1fcc9",
+        "location": "BaseThreadInitThunk + 0x19"
+      },
+      {
+        "id": "4",
+        "module": "ntdll.dll",
+        "address": "0x77c2809e",
+        "offset": "0x6809e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0x11e"
+      },
+      {
+        "id": "5",
+        "module": "ntdll.dll",
+        "address": "0x77c2806e",
+        "offset": "0x6806e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0xee"
+      }
+    ]
+  },
+  {
+    "id": "803",
+    "datetime": "5/13/2025 9:00:00 PM",
+    "time": "9:00:00.711 PM",
+    "elapsed": "0:00:00:029",
+    "thread": "1",
+    "tid": "3420",
+    "module": "create_file.exe",
+    "category": "File Systems",
+    "api": "NtOpenFile ( 0x0019ff04, 2147483648, 0x0019feac, 0x0019feec, 1, 32 )",
+    "return_type": "NTSTATUS",
+    "return_value": "0xc000000d",
+    "return_address": "0x0031171e",
+    "error": "0xc000000d = An invalid parameter was passed to a service or function. ",
+    "duration": "0.0000028",
+    "function_category": "NT Native / File Systems",
+    "parameters": [
+      {
+        "id": "1",
+        "type": "PHANDLE",
+        "name": "FileHandle",
+        "pre_value": "0x0019ff04 = NULL",
+        "post_value": "0x0019ff04 = NULL"
+      },
+      {
+        "id": "2",
+        "type": "DWORD",
+        "name": "DesiredAccess",
+        "pre_value": "GENERIC_READ",
+        "post_value": "GENERIC_READ"
+      },
+      {
+        "id": "3",
+        "type": "POBJECT_ATTRIBUTES",
+        "name": "ObjectAttributes",
+        "pre_value": "0x0019feac = { Length = 24, RootDirectory = NULL, ObjectName = 0x0019fedc  ...}",
+        "post_value": "0x0019feac = { Length = 24, RootDirectory = NULL, ObjectName = 0x0019fedc  ...}"
+      },
+      {
+        "id": "4",
+        "type": "PIO_STATUS_BLOCK",
+        "name": "IoStatusBlock",
+        "pre_value": "0x0019feec = { { Status = STATUS_SUCCESS, Pointer = NULL }, Information = 0 }",
+        "post_value": "0x0019feec = { { Status = STATUS_SUCCESS, Pointer = NULL }, Information = 0 }"
+      },
+      {
+        "id": "5",
+        "type": "ULONG",
+        "name": "ShareAccess",
+        "pre_value": "FILE_SHARE_READ",
+        "post_value": "FILE_SHARE_READ"
+      },
+      {
+        "id": "6",
+        "type": "ULONG",
+        "name": "OpenOptions",
+        "pre_value": "FILE_SYNCHRONOUS_IO_NONALERT",
+        "post_value": "FILE_SYNCHRONOUS_IO_NONALERT"
+      },
+      {
+        "id": "",
+        "type": "NTSTATUS",
+        "name": "Return",
+        "pre_value": "",
+        "post_value": "STATUS_INVALID_PARAMETER"
+      }
+    ],
+    "call_stack": [
+      {
+        "id": "1",
+        "module": "create_file.exe",
+        "address": "0x0031171e",
+        "offset": "0x171e",
+        "location": ""
+      },
+      {
+        "id": "2",
+        "module": "create_file.exe",
+        "address": "0x00311a09",
+        "offset": "0x1a09",
+        "location": ""
+      },
+      {
+        "id": "3",
+        "module": "KERNEL32.DLL",
+        "address": "0x7795fcc9",
+        "offset": "0x1fcc9",
+        "location": "BaseThreadInitThunk + 0x19"
+      },
+      {
+        "id": "4",
+        "module": "ntdll.dll",
+        "address": "0x77c2809e",
+        "offset": "0x6809e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0x11e"
+      },
+      {
+        "id": "5",
+        "module": "ntdll.dll",
+        "address": "0x77c2806e",
+        "offset": "0x6806e",
+        "location": "RtlGetAppContainerNamedObjectPath + 0xee"
+      }
+    ]
+  }
+]

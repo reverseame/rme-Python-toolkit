@@ -1,3 +1,5 @@
+# parallel.py (run_pipeline actualizado para usar print_match)
+
 import json
 import os
 import time
@@ -9,7 +11,9 @@ from typing import Any
 
 import ijson
 import psutil
-from ioc_extractor.core.processor import chunked_entries, file_sha256, process_chunk
+from ioc_extractor.engine.executor import execute_rule
+from ioc_extractor.utils.formatter import print_match
+from ioc_extractor.utils.io import file_sha256, read_json_chunks
 from ioc_extractor.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -21,7 +25,6 @@ def detect_workers(requested: int = None) -> int:
     result = requested if requested and requested > 0 else available_threads
     logger.info(f"Detected {result} worker(s) (CPU={cpu}, Load={load:.2f})")
     return result
-
 
 def sample_entries(path: str, count: int = 50) -> list[dict[str, Any]]:
     logger.debug(f"Sampling up to {count} entries from file: {path}")
@@ -35,7 +38,6 @@ def sample_entries(path: str, count: int = 50) -> list[dict[str, Any]]:
     except Exception as e:
         logger.error(f"Failed to sample entries from {path}: {e}", exc_info=True)
     return batch
-
 
 def compute_chunk_size(
     path: str,
@@ -51,9 +53,10 @@ def compute_chunk_size(
         return min_size
 
     try:
-        file_hash = file_sha256(path)
         start = time.time()
-        process_chunk(path, file_hash, samples, rules)
+        for entry in samples:
+            for rule in rules:
+                execute_rule(entry, rule)
         elapsed = time.time() - start
         per_entry = elapsed / len(samples)
         mem = psutil.virtual_memory()
@@ -66,6 +69,34 @@ def compute_chunk_size(
         logger.error(f"Error computing chunk size for {path}: {e}", exc_info=True)
         return min_size
 
+def worker_task(batch: list[dict[str, Any]], rules: list[dict[str, Any]]) -> tuple[dict[str, int], list[dict[str, Any]]]:
+    local_counts: dict[str, int] = defaultdict(int)
+    local_matches: list[dict[str, Any]] = []
+    for entry in batch:
+        for rule in rules:
+            result = execute_rule(entry, rule)
+            if result:
+                rule_name = rule.get("name", "unnamed")
+                local_counts[rule_name] += 1
+                local_matches.append(result)
+                break
+    return local_counts, local_matches
+
+def start_producer(inputs: list[str], chunk_sizes: dict[str, int], task_queue: Queue, workers: int) -> None:
+    def producer():
+        try:
+            for infile in inputs:
+                file_hash = file_sha256(infile)
+                cs = chunk_sizes[infile]
+                logger.debug(f"Producing chunks from {infile} with chunk size {cs}")
+                for batch in read_json_chunks(infile, cs):
+                    task_queue.put((infile, file_hash, batch, str(infile)))
+            for _ in range(workers):
+                task_queue.put(None)
+        except Exception as e:
+            logger.error(f"Error in producer thread: {e}", exc_info=True)
+
+    Thread(target=producer, daemon=True).start()
 
 def run_pipeline(
     inputs: list[str],
@@ -77,25 +108,13 @@ def run_pipeline(
 ) -> tuple[dict[str, int], list[dict[str, Any]]]:
     logger.debug("Starting pipeline execution...")
     task_queue: Queue = Queue(maxsize=workers * 2)
-
-    def producer():
-        try:
-            for infile in inputs:
-                file_hash = file_sha256(infile)
-                cs = chunk_sizes[infile]
-                logger.debug(f"Producing chunks from {infile} with chunk size {cs}")
-                for batch in chunked_entries(infile, cs):
-                    task_queue.put((infile, file_hash, batch))
-            for _ in range(workers):
-                task_queue.put(None)
-        except Exception as e:
-            logger.error(f"Error in producer thread: {e}", exc_info=True)
-
-    Thread(target=producer, daemon=True).start()
+    start_producer(inputs, chunk_sizes, task_queue, workers)
 
     agg_counts: dict[str, int] = defaultdict(int)
     temp_output = None
     first_written = False
+    matches: list[dict[str, Any]] = []
+
     if output_path:
         try:
             temp_output = open(output_path, "w", encoding="utf-8")
@@ -107,39 +126,53 @@ def run_pipeline(
 
     with ProcessPoolExecutor(max_workers=workers) as executor:
         pending = []
+
         for _ in range(workers):
             task = task_queue.get()
             if task is None:
                 break
-            infile, file_hash, batch = task
-            pending.append(executor.submit(process_chunk, infile, file_hash, batch, rules))
+            infile, file_hash, batch, source_file = task
+            future = executor.submit(worker_task, batch, rules)
+            pending.append((future, source_file))
 
         while pending:
-            done_set, _ = wait(pending, return_when=FIRST_COMPLETED)
-            future = done_set.pop()
-            pending.remove(future)
+            done_set, _ = wait([f[0] for f in pending], return_when=FIRST_COMPLETED)
+            for future_obj in list(done_set):
+                future_tuple = next(p for p in pending if p[0] == future_obj)
+                pending.remove(future_tuple)
+                future, source_file = future_tuple
 
-            try:
-                counts, matches = future.result()
-            except Exception as e:
-                logger.warning(f"Worker task failed: {e}", exc_info=True)
-                continue
+                try:
+                    counts, chunk_matches = future.result()
+                except Exception as e:
+                    logger.warning(f"Worker task failed: {e}", exc_info=True)
+                    continue
 
-            for rule_name, cnt in counts.items():
-                agg_counts[rule_name] += cnt
+                for rule_name, cnt in counts.items():
+                    agg_counts[rule_name] += cnt
 
-            if temp_output:
-                for match in matches:
-                    if first_written:
-                        temp_output.write(",\n")
-                    temp_output.write(json.dumps(match, ensure_ascii=False))
-                    first_written = True
+                for match in chunk_matches:
+                    print_match(
+                        match_type=rule_name,
+                        match_id=match.get("id", "?"),
+                        api=match.get("api", "?"),
+                        source_file=source_file,
+                        selected_fields=match.get("fields", {})
+                    )
+                    if temp_output:
+                        if first_written:
+                            temp_output.write(",\n")
+                        temp_output.write(json.dumps(match, ensure_ascii=False))
+                        first_written = True
+                    else:
+                        matches.append(match)
 
-            task = task_queue.get()
-            if task is None:
-                continue
-            infile, file_hash, batch = task
-            pending.append(executor.submit(process_chunk, infile, file_hash, batch, rules))
+                task = task_queue.get()
+                if task is None:
+                    continue
+                infile, file_hash, batch, source_file = task
+                future = executor.submit(worker_task, batch, rules)
+                pending.append((future, source_file))
 
     if temp_output:
         temp_output.write("]\n")
@@ -148,4 +181,4 @@ def run_pipeline(
         return agg_counts, []
 
     logger.info("Pipeline execution completed")
-    return agg_counts, []
+    return agg_counts, matches
