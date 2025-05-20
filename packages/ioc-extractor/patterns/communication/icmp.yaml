@@ -1,0 +1,20 @@
+meta:
+  name: icmp_communication
+  description: Detects communication over ICMP protocol, commonly used by malware for covert command-and-control or data exfiltration.
+  categories:
+    - network
+  tags:
+    - icmp
+    - communication
+    - c2
+    - exfiltration
+  mbcs:
+    - C0014
+    - C0014.002 # Send ICMP echo request.
+    - C0014.001 # Generate ICMP traffic.
+  att&ck:
+    - T1043 # Commonly Used Port (ICMP type)
+    - T1095 # Non-Application Layer Protocol
+  authors:
+    - reverseame
+  version: "1.0"

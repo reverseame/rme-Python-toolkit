@@ -1,0 +1,24 @@
+meta:
+  name: wininet_communication
+  description: Detects the use of WinINet API functions to perform internet-based communication such as connecting, reading, and writing via FTP or HTTP.
+  categories:
+    - network
+  tags:
+    - wininet
+    - http
+    - ftp
+    - communication
+    - c2
+  mbcs:
+    - C0005 # Malware uses WinINet API
+    - C0005.001 # InternetConnect
+    - C0005.002 # InternetOpen
+    - C0005.003 # InternetOpenURL
+    - C0005.004 # InternetReadFile
+    - C0005.005 # InternetWriteFile
+  att&ck:
+    - T1071.001 # Application Layer Protocol: Web Protocols
+    - T1071.002 # Application Layer Protocol: File Transfer Protocol
+  authors:
+    - reverseame
+  version: "1.0"

@@ -1,0 +1,19 @@
+meta:
+  name: ftp_communication
+  description: Detects communication over FTP protocol, which may be used by malware for command-and-control, exfiltration, or downloading payloads.
+  categories:
+    - network
+  tags:
+    - ftp
+    - communication
+    - exfiltration
+    - c2
+  mbcs:
+    - C0004
+    - C0004.001 # Send FTP file.
+    - C0004.002 # Send FTP command via WinINet.
+  att&ck:
+    - T1071.002 # Application Layer Protocol: File Transfer Protocol (FTP)
+  authors:
+    - reverseame
+  version: "1.0"

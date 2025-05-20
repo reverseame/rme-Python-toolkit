@@ -1,0 +1,19 @@
+meta:
+  name: create_thread
+  description: Detects the creation of threads by malware, including remote and user-mode thread creation, commonly used for code execution or injection.
+  categories:
+    - process
+  tags:
+    - thread
+    - remote-thread
+    - injection
+    - evasion
+    - execution
+  mbcs:
+    - C0038 # Create Thread
+  att&ck:
+    - T1055.001 # Process Injection: Remote Thread Injection
+    - T1055.003 # Process Injection: Thread Execution Hijacking
+  authors:
+    - reverseame
+  version: "1.0"

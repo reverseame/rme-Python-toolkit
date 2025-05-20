@@ -1,0 +1,18 @@
+meta:
+  name: check_mutex
+  description: Detects behavior where malware checks for the existence of a mutex, typically to ensure only one instance runs or to detect sandbox/VM environments.
+  categories:
+    - process
+  tags:
+    - mutex
+    - anti-analysis
+    - anti-sandbox
+    - vm-detection
+    - evasion
+  mbcs:
+    - C0043 # Check Mutex
+  att&ck:
+    - T1497.001 # Virtualization/Sandbox Evasion: System Checks
+  authors:
+    - reverseame
+  version: "1.0"

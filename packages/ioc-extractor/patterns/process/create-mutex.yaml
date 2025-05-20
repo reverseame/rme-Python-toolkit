@@ -1,0 +1,17 @@
+meta:
+  name: create_mutex
+  description: Detects the creation of mutexes, commonly used by malware to enforce single instance execution or coordinate behavior between components.
+  categories:
+    - process
+  tags:
+    - mutex
+    - synchronization
+    - evasion
+    - control
+  mbcs:
+    - C0042 # Create Mutex
+  att&ck:
+    - T1497.001 # Virtualization/Sandbox Evasion: System Checks
+  authors:
+    - reverseame
+  version: "1.0"

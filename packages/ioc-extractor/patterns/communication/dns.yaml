@@ -1,0 +1,21 @@
+meta:
+  name: dns_communication
+  description: Detects DNS-based communication typically used for data exchange, command-and-control, or evasion.
+  categories:
+    - network
+  tags:
+    - dns
+    - communication
+    - c2
+  mbcs:
+    - C0011
+    - C0011.003 # Connects to dynamic DNS domain.
+    - C0011.001 # Resolves a domain.
+    - C0011.005 # Resolves a free hosting domain (e.g., freeiz.com).
+    - C0011.004 # Resolves top level domain.
+    - C0011.002 # Connects to DNS server.
+  att&ck:
+    - T1071.004 # Application Layer Protocol: DNS
+  authors:
+    - reverseame
+  version: "1.0"

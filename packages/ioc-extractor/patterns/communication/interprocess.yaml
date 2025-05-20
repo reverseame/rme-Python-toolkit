@@ -1,0 +1,22 @@
+meta:
+  name: ipc_communication
+  description: Detects interprocess communication mechanisms used by malware to coordinate or exchange data between processes.
+  categories:
+    - process
+  tags:
+    - ipc
+    - communication
+    - synchronization
+    - c2
+  mbcs:
+    - C0003
+    - C0003.001 # Create Pipe
+    - C0003.002 # Connect Pipe
+    - C0003.003 # Read Pipe
+    - C0003.004 # Write Pipe
+  att&ck:
+    - T1041 # Exfiltration Over C2 Channel
+    - T1053 # Scheduled Task/Job (when using named pipes or similar)
+  authors:
+    - reverseame
+  version: "1.0"

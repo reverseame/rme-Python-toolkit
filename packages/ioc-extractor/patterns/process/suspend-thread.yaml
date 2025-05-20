@@ -1,0 +1,19 @@
+meta:
+  name: suspend_thread
+  description: Detects the suspension of threads, commonly used by malware to manipulate or control execution flow, often in preparation for code injection.
+  categories:
+    - process
+  tags:
+    - thread
+    - suspend
+    - injection
+    - evasion
+    - control
+  mbcs:
+    - C0055 # Suspend Thread
+  att&ck:
+    - T1055.003 # Process Injection: Thread Execution Hijacking
+    - T1055.012 # Process Hollowing
+  authors:
+    - reverseame
+  version: "1.0"

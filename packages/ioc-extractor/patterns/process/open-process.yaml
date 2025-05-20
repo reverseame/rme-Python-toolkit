@@ -1,0 +1,18 @@
+meta:
+  name: open_process
+  description: Detects attempts to open handles to other processes, which is commonly used by malware for injection, code manipulation, or inspection.
+  categories:
+    - process
+  tags:
+    - open-process
+    - injection
+    - evasion
+    - discovery
+  mbcs:
+    - C0065 # Open Process
+  att&ck:
+    - T1055 # Process Injection
+    - T1057 # Process Discovery
+  authors:
+    - reverseame
+  version: "1.0"

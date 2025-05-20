@@ -1,0 +1,47 @@
+meta:
+  name: registry_interaction
+  description: Detects access and manipulation of the Windows Registry by malware, including creation, deletion, querying, and modification of keys and values.
+  categories:
+    - registry
+  tags:
+    - registry
+    - persistence
+    - configuration
+    - evasion
+  mbcs:
+    - C0036 # General Registry interaction
+    - C0036.001 # Set Registry Value
+    - C0036.002 # Delete Registry Key
+    - C0036.003 # Open Registry Key
+    - C0036.004 # Create Registry Key
+    - C0036.005 # Query Registry Key
+    - C0036.006 # Query Registry Value
+    - C0036.007 # Delete Registry Value
+  att&ck:
+    - T1112 # Modify Registry
+    - T1547.001 # Registry Run Keys/Startup Folder
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+  - select: registry
+    where:
+      or:
+        # Create Key
+        - regex: ["api", "(?i)^RegCreateKey(Ex)?(A|W)?$"]
+
+        # Open Key
+        - regex: ["api", "(?i)^RegOpenKey(Ex)?(A|W)?$"]
+
+        # Set Value
+        - regex: ["api", "(?i)^RegSetValue(Ex)?(A|W)?$"]
+
+        # Query Key / Value
+        - regex: ["api", "(?i)^RegQuery(Key|Value)(Ex)?(A|W)?$"]
+
+        # Delete Key
+        - regex: ["api", "(?i)^RegDeleteKey(Ex)?(A|W)?$"]
+
+        # Delete Value
+        - regex: ["api", "(?i)^RegDeleteValue(A|W)?$"]

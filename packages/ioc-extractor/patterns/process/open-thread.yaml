@@ -1,0 +1,19 @@
+meta:
+  name: open_thread
+  description: Detects behavior where malware opens a handle to a thread, typically used for manipulation, injection, or evasion techniques.
+  categories:
+    - process
+  tags:
+    - thread
+    - open-thread
+    - injection
+    - evasion
+    - control
+  mbcs:
+    - C0066 # Open Thread
+  att&ck:
+    - T1055.003 # Process Injection: Thread Execution Hijacking
+    - T1055 # Process Injection
+  authors:
+    - reverseame
+  version: "1.0"
