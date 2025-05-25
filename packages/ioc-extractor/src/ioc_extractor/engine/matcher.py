@@ -1,5 +1,5 @@
+from ioc_extractor.engine.selector import resolve_selector
 from ioc_extractor.rules.registry import get_operator
-from ioc_extractor.utils.selector import resolve_selector
 
 
 def evaluate_conditions(entry, where):

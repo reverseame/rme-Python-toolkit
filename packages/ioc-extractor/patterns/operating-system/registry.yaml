@@ -10,38 +10,95 @@ meta:
     - evasion
   mbcs:
     - C0036 # General Registry interaction
-    - C0036.001 # Set Registry Value
-    - C0036.002 # Delete Registry Key
-    - C0036.003 # Open Registry Key
-    - C0036.004 # Create Registry Key
-    - C0036.005 # Query Registry Key
-    - C0036.006 # Query Registry Value
-    - C0036.007 # Delete Registry Value
   att&ck:
     - T1112 # Modify Registry
-    - T1547.001 # Registry Run Keys/Startup Folder
   authors:
     - reverseame
   version: "1.0"
 
 variants:
-  - select: registry
+  - name: create_registry_key
+    mbcs:
+      - C0036.004 # Create Registry Key
+    att&ck:
+      - T1547.001 # Registry Run Keys/Startup Folder
+    select:
+      - field: parameters[?name=='hKey'].post_value
+        alias: hive
+      - field: parameters[?name=='lpSubKey'].post_value
+        alias: key_path
+        transform:
+          - split: [" ", -1, 1]
+          - regex_sub: ['["]', ""]
+      - field: parameters[?name=='lpdwDisposition'].post_value
+        alias: disposition
     where:
       or:
-        # Create Key
-        - regex: ["api", "(?i)^RegCreateKey(Ex)?(A|W)?$"]
+        - regex: ["api", "(?i)^RegCreateKeyEx(A|W)?"]
+        - regex: ["api", "(?i)^RegCreateKey(A|W)?"]
 
-        # Open Key
-        - regex: ["api", "(?i)^RegOpenKey(Ex)?(A|W)?$"]
+  - name: open_registry_key_ex
+    mbcs:
+      - C0036.003 # Open Registry Key
+    select:
+      - field: parameters[?name=='hKey'].post_value
+        alias: hive
+      - field: parameters[?name=='lpSubKey'].post_value
+        alias: key_path
+        transform:
+          - split: [" ", -1, 1]
+          - regex_sub: ['["]', ""]
+      - field: parameters[?name=='samDesired'].post_value
+        alias: access_mask
+    where:
+      regex: ["api", "(?i)^RegOpenKeyEx(A|W)?"]
 
-        # Set Value
-        - regex: ["api", "(?i)^RegSetValue(Ex)?(A|W)?$"]
+  - name: set_registry_value
+    mbcs:
+      - C0036.001 # Set Registry Value
+    att&ck:
+      - T1112 # Modify Registry
+    select:
+      - field: parameters[?name=='hKey'].post_value
+        alias: hive
+      - field: parameters[?name=='lpValueName'].post_value
+        alias: value_name
+      - field: parameters[?name=='dwType'].post_value
+        alias: value_type
+    where:
+      or:
+        - regex: ["api", "(?i)^RegSetValueEx(A|W)?"]
+        - regex: ["api", "(?i)^RegSetValue(A|W)?"]
 
-        # Query Key / Value
-        - regex: ["api", "(?i)^RegQuery(Key|Value)(Ex)?(A|W)?$"]
+  - name: query_registry_value_ex
+    mbcs:
+      - C0036.006 # Query Registry Value
+    where:
+      regex: ["api", "(?i)^RegQueryValueEx(A|W)?"]
 
-        # Delete Key
-        - regex: ["api", "(?i)^RegDeleteKey(Ex)?(A|W)?$"]
+  - name: delete_registry_key_ex
+    mbcs:
+      - C0036.002 # Delete Registry Key
+    select:
+      - field: parameters[?name=='hKey'].post_value
+        alias: hive
+      - field: parameters[?name=='lpSubKey'].post_value
+        alias: key_path
+        transform:
+          - split: [" ", -1, 1]
+          - regex_sub: ['["]', ""]
+      - field: parameters[?name=='samDesired'].post_value
+        alias: access_mask
+    where:
+      regex: ["api", "(?i)^RegDeleteKeyEx(A|W)?"]
 
-        # Delete Value
-        - regex: ["api", "(?i)^RegDeleteValue(A|W)?$"]
+  - name: delete_registry_value
+    mbcs:
+      - C0036.007 # Delete Registry Value
+    select:
+      - field: parameters[?name=='hKey'].post_value
+        alias: hive
+      - field: parameters[?name=='lpValueName'].post_value
+        alias: value_name
+    where:
+      regex: ["api", "(?i)^RegDeleteValue(A|W)?"]

@@ -7,6 +7,38 @@ logger = get_logger(__name__)
 FIELD_NAME_WIDTH = 18
 INDENTATION = "    "
 
+def normalize_to_list(val):
+    if val is None:
+        return []
+    return val if isinstance(val, list) else [val]
+
+def format_result(entry_id, api_full, selected_fields, rule) -> dict:
+    api_short = api_full.split("(")[0].strip()
+    meta = rule.get("meta", {})
+    variant = rule.get("name")
+
+    # Construcción del nombre compuesto de la regla
+    if not variant or variant == meta.get("name"):
+        rule_name = meta.get("name", variant or "unnamed")
+    else:
+        rule_name = f"{meta.get('name')}::{variant}"
+
+    def merge(field):
+        return sorted(set(normalize_to_list(meta.get(field, [])) + normalize_to_list(rule.get(field, []))))
+
+    metadata = {"rule": rule_name}
+    for field in ("mbcs", "att&ck", "tags", "categories"):
+        merged = merge(field)
+        if merged:
+            metadata[field] = merged
+
+    return {
+        "id": entry_id,
+        "api": api_short,
+        "attributes": selected_fields,
+        "metadata": metadata
+    }
+
 def print_match(
     match_type: str,
     match_id: str,

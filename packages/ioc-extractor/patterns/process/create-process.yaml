@@ -23,3 +23,45 @@ meta:
   authors:
     - reverseame
   version: "1.0"
+
+variants:
+  # kernel32.CreateProcess[A/W]/CreateProcessInternalW
+  - select:
+      - field: parameters[?name=='lpApplicationName'].post_value
+        alias: application
+        transform:
+          - split: [" ", -1, 1]
+      - field: parameters[?name=='lpCommandLine'].post_value
+        alias: command
+        transform:
+          - split: [" ", -1, 1]
+          - regex_sub: ['["]', ""]
+      - field: parameters[?name=='dwCreationFlags'].post_value
+        alias: flags
+      - field: parameters[?name=='lpProcessInformation'].post_value
+        alias: pid
+        transform:
+          - regex_extract: 'dwProcessId\s*=\s*(\d+)'
+
+    where:
+      regex: ["api", "(?i)^CreateProcess"]
+
+  # advapi32.CreateProcessWith*
+  - where:
+      regex: ["api", "(?i)^CreateProcessWith"]
+
+  # kernel32.WinExec
+  - where:
+      regex: ["api", "(?i)^WinExec"]
+
+  # shell32.ShellExecute[A/W]
+  - where:
+      regex: ["api", "(?i)^ShellExecute$"]
+
+  # shell32.ShellExecuteEx[A/W]
+  - where:
+      regex: ["api", "(?i)^ShellExecuteEx"]
+
+  # ntdll/zw process creation (parameter extraction not readily available)
+  - where:
+      regex: ["api", "(?i)^(Nt|Zw)(Create|CreateUser)Process"]

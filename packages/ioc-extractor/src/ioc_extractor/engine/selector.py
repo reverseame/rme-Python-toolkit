@@ -1,5 +1,12 @@
-from ioc_extractor.utils.selector import apply_modifiers, resolve_selector
+import jmespath
+from ioc_extractor.rules.modifiers import apply_modifiers
 
+
+def resolve_selector(entry: dict, selector: str):
+    try:
+        return jmespath.search(selector, entry)
+    except Exception as e:
+        raise RuntimeError(f"JMESPath error in selector '{selector}': {e}")
 
 def process_select(entry, select_list):
     fields = {}
