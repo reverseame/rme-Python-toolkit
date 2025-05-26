@@ -9,6 +9,10 @@ from ioc_extractor.utils.logger import get_logger
 logger = get_logger(__name__)
 
 def compile_where(where: Any) -> Any:
+    """
+    Recursively processes 'where' conditions, compiling regex patterns
+    and preparing operator trees for evaluation.
+    """
     if isinstance(where, dict):
         if "and" in where:
             return {"and": [compile_where(c) for c in where["and"]]}
@@ -29,7 +33,10 @@ def compile_where(where: Any) -> Any:
         return [compile_where(w) for w in where]
     return where
 
-def normalize_list(val: Union[str, list, None]) -> list:
+def normalize_list(val: str | list | None) -> list:
+    """
+    Ensures values are always returned as lists, regardless of input format.
+    """
     if val is None:
         return []
     return val if isinstance(val, list) else [val]
@@ -140,6 +147,10 @@ def _resolve_rule_files(paths: list[Path]) -> list[Path]:
     return files
 
 def load_query_rules(paths: list[Path]) -> list[dict[str, Any]]:
+    """
+    Loads and validates all YAML rule files from given paths.
+    Converts them to normalized internal rule objects.
+    """
     rules: list[Rule] = []
     for file in _resolve_rule_files(paths):
         with open(file, encoding="utf-8") as f:

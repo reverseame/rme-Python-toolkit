@@ -1,26 +1,41 @@
+from typing import Callable
+
 from ioc_extractor.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-_transform_registry: dict[str, callable] = {}
-_operator_registry: dict[str, callable] = {}
+_transform_registry: dict[str, Callable] = {}
+_operator_registry: dict[str, Callable] = {}
 
-def register_transform(name: str):
+def register_transform(name: str) -> Callable:
+    """
+    Decorator to register a transformation function by name.
+    Used in the 'transform' block of rule select fields.
+    """
     def decorator(fn):
         _transform_registry[name] = fn
         return fn
     return decorator
 
-def get_transform(name: str):
+def get_transform(name: str) -> Callable | None:
+    """
+    Retrieves a registered transformation function by name.
+    """
     return _transform_registry.get(name)
 
-def register_operator(name: str):
+def register_operator(name: str) -> Callable:
+    """
+    Decorator to register a logical operator used in 'where' conditions.
+    """
     def decorator(fn):
         _operator_registry[name] = fn
         return fn
     return decorator
 
-def get_operator(name: str):
+def get_operator(name: str) -> Callable | None:
+    """
+    Retrieves a registered logical operator by name.
+    """
     return _operator_registry.get(name)
 
 # ---------------------------------------------------------------------

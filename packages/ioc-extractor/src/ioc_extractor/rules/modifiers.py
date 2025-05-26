@@ -1,31 +1,31 @@
 """
-This module defines and applies value transformation modifiers used in rule definitions.
+This module implements value transformation logic used in rule definitions.
 
-Modifiers are configured under `transform:` blocks inside YAML rules, and apply transformations to individual fields.
+Transformations (modifiers) are configured under the `transform:` block in YAML rules,
+and apply to individual selected fields after extraction. They allow normalization,
+cleanup, or parsing of raw field values before being output.
 
-Each modifier can be specified in two formats:
+Modifiers are evaluated in the order they are defined and support two formats:
 
-1. Positional form (as a list):
+1. Positional (list) syntax:
+   transform:
+     - lower
+     - split: [" ", -1]
+     - regex_sub: ["[\"']", ""]  # Remove quotes
 
-    transform:
-    - split: [" ", -1, 1]          # split on space, take index -1, with maxsplit 1
-    - regex_sub: ["[\"|']", ""]    # remove quotes
+2. Named (dict) syntax:
+   transform:
+     - split:
+         delimiter: " "
+         index: -1
+     - regex_sub:
+         pattern: "[\"']"
+         repl: ""
 
-2. Named argument form (as a dictionary):
+Internally, each modifier must be registered using `@register_transform("name")`
+and must accept a value followed by *args or **kwargs depending on the input format.
 
-    transform:
-    - split:
-        delimiter: " "
-        index: -1
-        maxsplit: 1
-    - regex_sub:
-        pattern: "[\"|']"
-        repl: ""
-
-Each modifier must be registered with `@register_transform("name")` and must accept a value followed by either *args or **kwargs.
-If a modifier is unknown or invalid, it will be skipped with a warning.
-
-Modifiers are evaluated in order.
+If a modifier is unknown or malformed, it is skipped with a warning.
 """
 
 import logging
@@ -38,11 +38,18 @@ from ioc_extractor.rules.registry import get_transform, register_transform
 logger = logging.getLogger(__name__)
 
 def to_str(val: Any) -> str:
+    """
+    Converts any value (or first item of a list) to string for uniform modifier application.
+    """
     if isinstance(val, list):
         return str(val[0]) if val else ""
     return str(val)
 
 def apply_modifiers(value: Any, modifiers: list[Any]) -> str:
+    """
+    Applies a sequence of string transformations to a selected field.
+    Supports inline and named-argument modifier syntax from YAML.
+    """
     original_value = value
     try:
         for mod in modifiers:

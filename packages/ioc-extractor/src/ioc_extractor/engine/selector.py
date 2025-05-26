@@ -1,14 +1,24 @@
+from typing import Any
+
 import jmespath
 from ioc_extractor.rules.modifiers import apply_modifiers
 
 
-def resolve_selector(entry: dict, selector: str):
+def resolve_selector(entry: dict, selector: str) -> Any:
+    """
+    Evaluates a JMESPath expression over a JSON-like entry.
+    Used to extract dynamic fields from nested data.
+    """
     try:
         return jmespath.search(selector, entry)
     except Exception as e:
         raise RuntimeError(f"JMESPath error in selector '{selector}': {e}")
 
-def process_select(entry, select_list):
+def process_select(entry: dict, select_list: list[dict]) -> dict:
+    """
+    Applies 'select' logic from a rule: extracts fields, applies transformations,
+    and returns them with aliases for use in rule output.
+    """
     fields = {}
     for sel in select_list:
         field = sel["field"]
@@ -16,7 +26,6 @@ def process_select(entry, select_list):
         transforms = sel.get("transform", [])
         val = resolve_selector(entry, field)
 
-        # Aplana listas de un solo valor
         if isinstance(val, list):
             if len(val) == 1:
                 val = val[0]
