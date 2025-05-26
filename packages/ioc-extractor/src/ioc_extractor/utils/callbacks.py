@@ -1,6 +1,3 @@
-from glob import glob
-from pathlib import Path
-
 import typer
 from ioc_extractor.utils.logger import configure_logger
 

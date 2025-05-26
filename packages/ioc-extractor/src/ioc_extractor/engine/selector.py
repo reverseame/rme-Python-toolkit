@@ -1,18 +1,18 @@
-from typing import Any
-
 import jmespath
 from ioc_extractor.rules.modifiers import apply_modifiers
+from ioc_extractor.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
-def resolve_selector(entry: dict, selector: str) -> Any:
-    """
-    Evaluates a JMESPath expression over a JSON-like entry.
-    Used to extract dynamic fields from nested data.
-    """
+def resolve_selector(entry: dict, selector: str):
+    """Evaluates a JMESPath expression on a JSON-like entry."""
     try:
         return jmespath.search(selector, entry)
     except Exception as e:
-        raise RuntimeError(f"JMESPath error in selector '{selector}': {e}")
+        logger.warning(f"Failed to resolve selector '{selector}': {e}")
+        return None
+
 
 def process_select(entry: dict, select_list: list[dict]) -> dict:
     """

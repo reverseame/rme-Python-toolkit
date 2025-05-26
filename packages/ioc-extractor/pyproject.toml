@@ -6,6 +6,8 @@ readme = "README.md"
 authors = [{ name = "Hec7orci7o" }]
 requires-python = ">=3.12"
 dependencies = [
+    "humanfriendly",
+    "more-itertools",
     "python-dotenv",
     "PyYAML",
     "rich",
