@@ -1,106 +1,130 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
-    <meta charset="utf-8" />
-    <title>D3 Force Graph with Tooltip</title>
+    <meta charset="UTF-8" />
+    <title>Graph Explorer</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
+      html,
       body {
         margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
       }
-      svg {
-        width: 100vw;
-        height: 100vh;
-        display: block;
+      #graph-container {
+        width: 100%;
+        height: 100%;
       }
-      .label {
-        font-size: 12px;
+      .node {
+        stroke: #fff;
+        stroke-width: 1.5px;
+        cursor: pointer;
+      }
+      .link {
+        stroke: #cbd5e0;
+        stroke-opacity: 0.6;
+      }
+      .nodelabel {
+        font-size: 14px;
+        fill: #2d3748;
         pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
       }
       .tooltip {
         position: absolute;
-        background-color: white;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 10px;
-        font-family: sans-serif;
-        font-size: 13px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        max-width: 300px;
-        z-index: 10;
+        background: rgba(0, 0, 0, 0.75);
+        color: #fff;
+        padding: 6px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .hidden {
+        display: none;
       }
     </style>
   </head>
   <body>
-    <svg></svg>
-    <div id="tooltip" class="tooltip"></div>
+    <div id="graph-container"></div>
+    <div id="tooltip" class="tooltip hidden"></div>
+
     <script>
-      const svg = d3.select("svg");
-      const tooltip = d3.select("#tooltip");
       const width = window.innerWidth;
       const height = window.innerHeight;
+      const svg = d3
+        .select("#graph-container")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+      const g = svg.append("g");
 
-      const colorMap = {
-        root: "#111",
-        category: "#0074D9",
-        rule_group: "#2ECC40",
-        rule_variant: "#FF851B",
-        api: "#B10DC9",
-      };
+      const zoom = d3
+        .zoom()
+        .scaleExtent([0.1, 5])
+        .on("zoom", (e) => g.attr("transform", e.transform));
+      svg.call(zoom);
+
+      const tooltip = d3.select("#tooltip");
+
+      function showTooltip(event, d) {
+        let html = `<strong>${d.label}</strong> (${d.count || 0})`;
+        if (d.type === "category") {
+          html += `<br/>Description: ${d.description || "N/A"}`;
+          html += `<br/>Tags: ${d.tags?.join(", ") || "N/A"}`;
+        }
+        if (d.type === "rule_group" || d.type === "rule_variant") {
+          html += `<br/>Description: ${d.description || "N/A"}`;
+          html += `<br/>MBCs: ${d.mbcs?.join(", ") || "N/A"}`;
+          html += `<br/>ATT&CK: ${d.attck?.join(", ") || "N/A"}`;
+        }
+        tooltip
+          .html(html)
+          .style("left", event.pageX + 10 + "px")
+          .style("top", event.pageY + 10 + "px")
+          .classed("hidden", false);
+      }
+      function hideTooltip() {
+        tooltip.classed("hidden", true);
+      }
+
+      function colorByType(type) {
+        return (
+          {
+            root: "#e53e3e",
+            category: "#dd6b20",
+            rule_group: "#3182ce",
+            rule_variant: "#805ad5",
+            api: "#38a169",
+          }[type] || "#718096"
+        );
+      }
 
       fetch("/graph")
         .then((res) => res.json())
-        .then((data) => {
-          const allNodes = new Map();
-          const allLinks = [];
+        .then(({ elements }) => {
+          const rawNodes = elements
+            .filter((e) => !e.data.source)
+            .map((e) => ({ ...e.data }));
+          const rawLinks = elements
+            .filter((e) => e.data.source)
+            .map((e) => ({
+              source: e.data.source,
+              target: e.data.target,
+            }));
 
-          data.elements.forEach((el) => {
-            if (el.data.id) {
-              allNodes.set(el.data.id, {
-                ...el.data,
-                visible: true,
-                collapsed: false,
-                children: [],
-                parent: null,
-              });
-            } else if (el.data.source && el.data.target) {
-              allLinks.push({
-                source: el.data.source,
-                target: el.data.target,
-                visible: true,
-              });
-            }
+          const nodeMap = Object.fromEntries(
+            rawNodes.map((n) => [n.id, { ...n }])
+          );
+          const childrenMap = {};
+          rawLinks.forEach((l) => {
+            if (!childrenMap[l.source]) childrenMap[l.source] = [];
+            childrenMap[l.source].push(l.target);
           });
 
-          const childMap = new Map();
-          allLinks.forEach((link) => {
-            if (!childMap.has(link.source)) childMap.set(link.source, []);
-            childMap.get(link.source).push(link.target);
-            allNodes.get(link.source)?.children.push(link.target);
-            allNodes.get(link.target).parent = link.source;
-          });
-
-          function toggleCollapse(nodeId, collapse) {
-            const stack = [nodeId];
-            while (stack.length) {
-              const currentId = stack.pop();
-              const children = childMap.get(currentId) || [];
-              for (const childId of children) {
-                const child = allNodes.get(childId);
-                if (child) {
-                  child.visible = !collapse;
-                  const link = allLinks.find(
-                    (l) => l.source === currentId && l.target === childId
-                  );
-                  if (link) link.visible = !collapse;
-                  stack.push(childId);
-                }
-              }
-            }
-          }
+          const visibleNodes = new Map(rawNodes.map((n) => [n.id, { ...n }]));
+          let links = [...rawLinks];
 
           const simulation = d3
             .forceSimulation()
@@ -109,137 +133,148 @@
               d3
                 .forceLink()
                 .id((d) => d.id)
-                .distance(100)
+                .distance(120)
+                .strength(0.5)
             )
             .force("charge", d3.forceManyBody().strength(-300))
-            .force("center", d3.forceCenter(width / 2, height / 2));
-
-          function update() {
-            const visibleNodes = Array.from(allNodes.values()).filter(
-              (n) => n.visible
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force(
+              "radial",
+              d3
+                .forceRadial(
+                  (d) => {
+                    const layer =
+                      {
+                        root: 0,
+                        category: 1,
+                        rule_group: 2,
+                        rule_variant: 3,
+                        api: 4,
+                      }[d.type] ?? 5;
+                    return layer * 140;
+                  },
+                  width / 2,
+                  height / 2
+                )
+                .strength(1)
             );
-            const visibleLinks = allLinks.filter(
-              (l) =>
-                l.visible &&
-                allNodes.get(l.source)?.visible &&
-                allNodes.get(l.target)?.visible
-            );
 
-            const resolvedLinks = visibleLinks.map((l) => ({
-              ...l,
-              source: allNodes.get(
-                typeof l.source === "string" ? l.source : l.source.id
-              ),
-              target: allNodes.get(
-                typeof l.target === "string" ? l.target : l.target.id
-              ),
-            }));
+          const linkGroup = g.append("g");
+          const nodeGroup = g.append("g");
+          const labelGroup = g.append("g");
 
-            simulation.nodes(visibleNodes);
-            simulation.force("link").links(resolvedLinks);
-            simulation.alpha(0.5).restart();
+          function updateGraph() {
+            const nodes = Array.from(visibleNodes.values());
+            const nodeById = Object.fromEntries(nodes.map((n) => [n.id, n]));
 
-            const link = svg
+            const validLinks = rawLinks
+              .filter((l) => nodeById[l.source] && nodeById[l.target])
+              .map((l) => ({
+                source: nodeById[l.source],
+                target: nodeById[l.target],
+              }));
+
+            const linkSel = linkGroup
               .selectAll("line")
-              .data(resolvedLinks, (d) => `${d.source.id}->${d.target.id}`);
+              .data(validLinks, (d) => `${d.source.id}-${d.target.id}`);
+            linkSel.exit().remove();
+            linkSel.enter().append("line").attr("class", "link").merge(linkSel);
 
-            link.exit().remove();
-
-            link
+            const nodeSel = nodeGroup
+              .selectAll("circle")
+              .data(nodes, (d) => d.id);
+            nodeSel.exit().remove();
+            nodeSel
               .enter()
-              .append("line")
-              .attr("stroke", "#aaa")
-              .attr("stroke-width", 1.5);
-
-            const node = svg
-              .selectAll("g.node")
-              .data(visibleNodes, (d) => d.id);
-
-            node.exit().remove();
-
-            const nodeEnter = node
-              .enter()
-              .append("g")
+              .append("circle")
               .attr("class", "node")
-              .on("click", (event, d) => {
-                d.collapsed = !d.collapsed;
-                toggleCollapse(d.id, d.collapsed);
-                update();
-                event.stopPropagation();
-              })
-              .on("mouseover", (event, d) => {
-                if (d.type === "api") {
-                  tooltip.style("opacity", 1).html(`
-                  <strong>${d.label}</strong><br>
-                  <em>${d.command || ""}</em><br>
-                  <small>PID: ${d.pid || "N/A"}</small><br><br>
-                  <div>${d.description || ""}</div>
-                  <div><strong>Tags:</strong> ${d.tags || ""}</div>
-                `);
-                }
-              })
-              .on("mousemove", (event) => {
-                tooltip
-                  .style("left", event.pageX + 10 + "px")
-                  .style("top", event.pageY + 10 + "px");
-              })
-              .on("mouseout", () => {
-                tooltip.transition().duration(200).style("opacity", 0);
-              })
+              .attr("r", (d) => (d.type === "root" ? 36 : 22))
+              .attr("fill", (d) => colorByType(d.type))
+              .on("mouseover", showTooltip)
+              .on("mouseout", hideTooltip)
+              .on("click", (_, d) => toggleChildren(d.id))
               .call(
                 d3
                   .drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended)
-              );
+                  .on("start", (event, d) => {
+                    if (!event.active) simulation.alphaTarget(0.3).restart();
+                    d.fx = d.x;
+                    d.fy = d.y;
+                  })
+                  .on("drag", (event, d) => {
+                    d.fx = event.x;
+                    d.fy = event.y;
+                  })
+                  .on("end", (event, d) => {
+                    if (!event.active) simulation.alphaTarget(0);
+                    d.fx = null;
+                    d.fy = null;
+                  })
+              )
+              .merge(nodeSel);
 
-            nodeEnter
-              .append("circle")
-              .attr("r", 12)
-              .attr("fill", (d) => colorMap[d.type] || "#ccc");
-
-            nodeEnter
+            const labelSel = labelGroup
+              .selectAll("text")
+              .data(nodes, (d) => d.id);
+            labelSel.exit().remove();
+            labelSel
+              .enter()
               .append("text")
-              .attr("class", "label")
-              .attr("x", 15)
-              .attr("y", 5)
-              .text((d) => d.label);
+              .attr("class", "nodelabel")
+              .text((d) => d.label)
+              .merge(labelSel);
 
-            svg.selectAll("g.node").merge(nodeEnter);
+            simulation.nodes(nodes);
+            simulation.force("link").links(validLinks);
+            simulation.alpha(0.8).restart();
+
+            simulation.on("tick", () => {
+              nodeGroup
+                .selectAll("circle")
+                .attr("cx", (d) => d.x)
+                .attr("cy", (d) => d.y);
+
+              labelGroup
+                .selectAll("text")
+                .attr("x", (d) => d.x)
+                .attr("y", (d) => d.y);
+
+              linkGroup
+                .selectAll("line")
+                .attr("x1", (d) => d.source.x)
+                .attr("y1", (d) => d.source.y)
+                .attr("x2", (d) => d.target.x)
+                .attr("y2", (d) => d.target.y);
+            });
           }
 
-          simulation.on("tick", () => {
-            svg
-              .selectAll("line")
-              .attr("x1", (d) => d.source?.x)
-              .attr("y1", (d) => d.source?.y)
-              .attr("x2", (d) => d.target?.x)
-              .attr("y2", (d) => d.target?.y);
+          function toggleChildren(id) {
+            const children = childrenMap[id] || [];
+            const anyChildVisible = children.some((child) =>
+              visibleNodes.has(child)
+            );
 
-            svg
-              .selectAll("g.node")
-              .attr("transform", (d) => `translate(${d.x},${d.y})`);
-          });
+            if (anyChildVisible) {
+              function recurseRemove(nid) {
+                (childrenMap[nid] || []).forEach((child) => {
+                  visibleNodes.delete(child);
+                  recurseRemove(child);
+                });
+              }
+              recurseRemove(id);
+            } else {
+              if (!visibleNodes.has(id)) {
+                visibleNodes.set(id, nodeMap[id]);
+              }
+              children.forEach((child) => {
+                visibleNodes.set(child, nodeMap[child]);
+              });
+            }
 
-          function dragstarted(event, d) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
+            updateGraph();
           }
 
-          function dragged(event, d) {
-            d.fx = event.x;
-            d.fy = event.y;
-          }
-
-          function dragended(event, d) {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-          }
-
-          update();
+          updateGraph();
         });
     </script>
   </body>
