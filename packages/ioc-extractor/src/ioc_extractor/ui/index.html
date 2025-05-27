@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Graph Explorer</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script defer src="{{ url_for('static', filename='graph.js') }}"></script>
+  </head>
+  <body>
+    <div id="graph-container"></div>
+    <div id="tooltip" class="tooltip hidden"></div>
+  </body>
+</html>
