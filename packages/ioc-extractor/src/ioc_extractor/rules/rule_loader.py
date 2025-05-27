@@ -45,97 +45,61 @@ def normalize_list(val: str | list | None) -> list:
 class Meta:
     name: str
     description: str = ""
-    version: str = "1.0"
-    authors: list[str] = field(default_factory=list)
     categories: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
-    attck: list[str] = field(default_factory=list)
     mbcs: list[str] = field(default_factory=list)
+    attck: list[str] = field(default_factory=list)
+    authors: list[str] = field(default_factory=list)
+    version: str = "1.0"
 
     @staticmethod
     def from_dict(d: dict[str, Any]) -> "Meta":
         return Meta(
             name=d.get("name", "?"),
             description=d.get("description", ""),
-            version=d.get("version", "1.0"),
-            authors=normalize_list(d.get("authors")),
             categories=normalize_list(d.get("categories")),
             tags=normalize_list(d.get("tags")),
-            attck=normalize_list(d.get("att&ck")),
             mbcs=normalize_list(d.get("mbcs")),
+            attck=normalize_list(d.get("att&ck")),
+            authors=normalize_list(d.get("authors")),
+            version=d.get("version", "1.0"),
         )
 
 @dataclass
 class Variant:
     name: Optional[str] = None
-    select: list[dict[str, Any]] = field(default_factory=list)
-    where: Any = field(default_factory=dict)
+    description: str = ""
+    categories: list[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     mbcs: list[str] = field(default_factory=list)
     attck: list[str] = field(default_factory=list)
-    tags: list[str] = field(default_factory=list)
-    categories: list[str] = field(default_factory=list)
+    select: list[dict[str, Any]] = field(default_factory=list)
+    where: Any = field(default_factory=dict)
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> "Variant":
         return Variant(
             name=data.get("name"),
-            select=data.get("select", []),
-            where=data.get("where", {}),
+            description=data.get("description", ""),
+            categories=normalize_list(data.get("categories")),
+            tags=normalize_list(data.get("tags")),
             mbcs=normalize_list(data.get("mbcs")),
             attck=normalize_list(data.get("att&ck")),
-            tags=normalize_list(data.get("tags")),
-            categories=normalize_list(data.get("categories")),
-        )
-
-    def to_rule(self, meta: Meta, source: Optional[Path] = None) -> "Rule":
-        def merged(field):
-            return list({*getattr(meta, field), *getattr(self, field)})
-        return Rule(
-            name=self.name or meta.name,
-            select=self.select,
-            where=compile_where(self.where),
-            meta=meta,
-            mbcs=merged("mbcs"),
-            attck=merged("attck"),
-            tags=merged("tags"),
-            categories=merged("categories"),
-            __source__=str(source) if source else None,
+            select=data.get("select", []),
+            where=data.get("where", {}),
         )
 
 @dataclass
-class Rule:
-    name: str
-    select: list[dict[str, Any]] = field(default_factory=list)
-    where: Any = field(default_factory=dict)
-    meta: Meta = field(default_factory=Meta)
-    mbcs: list[str] = field(default_factory=list)
-    attck: list[str] = field(default_factory=list)
-    tags: list[str] = field(default_factory=list)
-    categories: list[str] = field(default_factory=list)
-    __source__: Optional[str] = None
+class RuleWrapper:
+    meta: Meta
+    variant: Variant
+    source: Optional[str] = None
 
-    @staticmethod
-    def from_dict(data: dict[str, Any], meta: Optional[Meta] = None, source: Optional[Path] = None) -> "Rule":
-        rule_meta = Meta.from_dict(data.get("meta", {})) if meta is None else meta
-        inherited_fields = ["mbcs", "attck", "tags", "categories"]
-
-        for key in inherited_fields:
-            meta_vals = getattr(rule_meta, key, [])
-            local_vals = normalize_list(data.get(key, []))
-            combined = list({*meta_vals, *local_vals})
-            data[key] = combined
-
-        return Rule(
-            name=data.get("name", rule_meta.name),
-            select=data.get("select", []),
-            where=compile_where(data.get("where", {})),
-            meta=rule_meta,
-            mbcs=data.get("mbcs", []),
-            attck=data.get("attck", []),
-            tags=data.get("tags", []),
-            categories=data.get("categories", []),
-            __source__=str(source) if source else None,
-        )
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "meta": self.meta.__dict__,
+            "variant": self.variant.__dict__ | {"__source__": self.source}
+        }
 
 def _resolve_rule_files(paths: list[Path]) -> list[Path]:
     files = []
@@ -147,37 +111,31 @@ def _resolve_rule_files(paths: list[Path]) -> list[Path]:
     return files
 
 def load_query_rules(paths: list[Path]) -> list[dict[str, Any]]:
-    """
-    Loads and validates all YAML rule files from given paths.
-    Converts them to normalized internal rule objects.
-    """
-    rules: list[Rule] = []
+    results = []
+
     for file in _resolve_rule_files(paths):
         with open(file, encoding="utf-8") as f:
             raw = yaml.safe_load(f)
 
         if isinstance(raw, list):
             for r in raw:
-                rules.append(Rule.from_dict(r, source=file))
+                meta = Meta.from_dict(r.get("meta", {}))
+                variant = Variant.from_dict(r)
+                results.append(RuleWrapper(meta, variant, source=str(file)).to_dict())
 
         elif isinstance(raw, dict) and "meta" in raw and "variants" in raw:
-            base_meta = Meta.from_dict(raw["meta"])
-            for variant in raw["variants"]:
-                v = Variant.from_dict(variant)
-                rules.append(v.to_rule(base_meta, source=file))
+            meta = Meta.from_dict(raw["meta"])
+            for v in raw["variants"]:
+                variant = Variant.from_dict(v)
+                results.append(RuleWrapper(meta, variant, source=str(file)).to_dict())
 
         elif isinstance(raw, dict) and "select" in raw and "where" in raw:
-            rules.append(Rule.from_dict(raw, source=file))
+            meta = Meta.from_dict({})
+            variant = Variant.from_dict(raw)
+            results.append(RuleWrapper(meta, variant, source=str(file)).to_dict())
 
         else:
             raise ValueError(f"Invalid rule format in {file}")
 
-    logger.info(f"Loaded {len(rules)} rule(s)")
-
-    return [
-        {
-            **r.__dict__,
-            "meta": r.meta.__dict__
-        }
-        for r in rules
-    ]
+    logger.info(f"Loaded {len(results)} rule(s)")
+    return results
