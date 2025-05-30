@@ -1,0 +1,21 @@
+[project]
+name = "api-monitor-toolkit"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors =  [{ name = "Hec7orci7o" }]
+requires-python = ">=3.12"
+dependencies = [
+    "requests",
+    "pywin32",
+    "rich",
+    "typer==0.12.3",
+    "click<8.2"
+]
+
+[project.scripts]
+api-monitor-toolkit = "api_monitor_toolkit.__init__:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
