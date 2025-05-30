@@ -1,9 +1,13 @@
 import ctypes
-from ctypes import wintypes
-import win32con as wc
-import win32gui, win32api, win32process
-import commctrl as cc
 import unicodedata
+from ctypes import wintypes
+
+import commctrl as cc
+import win32api
+import win32con as wc
+import win32gui
+import win32process
+
 
 class RemoteProcess:
     _kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)

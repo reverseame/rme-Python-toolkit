@@ -1,11 +1,12 @@
 import json
+from pathlib import Path
+from typing import Optional
+from urllib.parse import urlparse
+
 import requests
+from api_monitor_toolkit.utils.logger import get_logger
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from typing import Optional
-from pathlib import Path
-from urllib.parse import urlparse
-from api_monitor_toolkit.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

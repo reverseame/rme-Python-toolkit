@@ -1,4 +1,5 @@
 from typing import Any, Callable
+
 import win32gui
 from api_monitor_toolkit.core.discovery import find_child_windows, find_control
 from api_monitor_toolkit.core.remote import RemoteListView

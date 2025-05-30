@@ -1,5 +1,7 @@
 import logging
+
 from rich.logging import RichHandler
+
 
 def configure_logger(verbosity: int):
     """Configure root logger with rich formatting and verbosity control."""

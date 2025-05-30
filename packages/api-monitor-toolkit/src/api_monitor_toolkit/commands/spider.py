@@ -1,18 +1,26 @@
+from typing import Annotated, Optional
+
 import typer
 import win32gui
-from api_monitor_toolkit.utils.output import choose_output_handler
-from typing import Annotated, Optional
-from api_monitor_toolkit.utils.helpers import ValueTransformer, get_mapped_data
-from api_monitor_toolkit.utils.mappings import SUMMARY_MAPPING, PARAMS_MAPPING, CALLSTACK_MAPPING
+from api_monitor_toolkit.core.discovery import (
+    find_child_windows,
+    find_control,
+    find_main_window,
+)
+from api_monitor_toolkit.core.exceptions import (
+    ChildControlsNotFound,
+    MainWindowNotFound,
+)
 from api_monitor_toolkit.core.remote import RemoteListView
 from api_monitor_toolkit.utils.callbacks import verbose_callback
+from api_monitor_toolkit.utils.helpers import ValueTransformer, get_mapped_data
 from api_monitor_toolkit.utils.logger import get_logger
-from api_monitor_toolkit.core.discovery import (
-    find_main_window,
-    find_child_windows,
-    find_control
+from api_monitor_toolkit.utils.mappings import (
+    CALLSTACK_MAPPING,
+    PARAMS_MAPPING,
+    SUMMARY_MAPPING,
 )
-from api_monitor_toolkit.core.exceptions import MainWindowNotFound, ChildControlsNotFound
+from api_monitor_toolkit.utils.output import choose_output_handler
 
 logger = get_logger(__name__)
 app = typer.Typer()

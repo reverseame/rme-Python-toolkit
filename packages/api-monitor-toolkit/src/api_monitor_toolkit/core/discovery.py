@@ -1,8 +1,11 @@
-import win32gui
-from typing import Callable, List
+from typing import Callable
 
+import win32gui
+from api_monitor_toolkit.core.exceptions import (
+    ChildControlsNotFound,
+    MainWindowNotFound,
+)
 from api_monitor_toolkit.utils.logger import get_logger
-from api_monitor_toolkit.core.exceptions import MainWindowNotFound, ChildControlsNotFound
 
 logger = get_logger(__name__)
 
@@ -36,7 +39,7 @@ def _log_window_info(
     logger.debug("\n".join(line for line in lines if line is not None))
 
 
-def _get_child_windows(hwnd: int) -> List[int]:
+def _get_child_windows(hwnd: int) -> list[int]:
     """Returns all direct child HWNDs for a given parent window."""
     result = []
     win32gui.EnumChildWindows(hwnd, lambda h, _: result.append(h), None)
@@ -67,7 +70,7 @@ def find_main_window(title_filter: Callable[[str], bool]) -> int:
     return hwnd
 
 
-def find_child_windows(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> List[int]:
+def find_child_windows(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> list[int]:
     """Returns all child HWNDs under the given parent that match the filter."""
     result = []
 
@@ -80,7 +83,7 @@ def find_child_windows(hwnd_parent: int, filter_callback: Callable[[int], bool])
     return result
 
 
-def find_child_controls(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> List[int]:
+def find_child_controls(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> list[int]:
     """Returns all matching control HWNDs under the given parent (e.g., ListView, TreeView)."""
     matched_hwnds = []
 

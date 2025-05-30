@@ -11,21 +11,41 @@ git clone https://github.com/reverseame/rme-Python-toolkit.git
 cd rme-Python-toolkit/packages/api-monitor-toolkit
 ```
 
-### 2. Install Dependencies
+### 2. Set Up the Environments
+
+Use the provided `Makefile` to create and install both 32-bit and 64-bit environments:
+
+> [!IMPORTANT]
+> Make sure you have Python 3.13 32-bit and 64-bit installed, and their paths are correctly set in the Makefile.
 
 ```bash
-uv venv                             # Create a virtual environment
-source .venv/bin/activate           # Activate it (.venv\Scripts\activate on Windows)
+make install32    # Create and install the 32-bit virtual environment
+make install64    # Create and install the 64-bit virtual environment
 ```
 
-```bash
-uv pip install -r pyproject.toml
-```
+<details> <summary><strong>⚠️ Why both?</strong></summary>
+
+This toolkit reads memory directly from Windows applications (e.g., API Monitor) using low-level system APIs.
+Because of Windows architecture restrictions, you must use a Python interpreter with the same bitness (32 or 64) as the target application:
+- If the target process is 32-bit → you must run the scraper with Python 32-bit.
+- If the target process is 64-bit → you must run the scraper with Python 64-bit.
+That's why this project uses two separate virtual environments: one for each architecture.
+</details>
 
 ### 3. Run the Tool
 
+Use the appropriate environment depending on the architecture of the target application:
+
+▶️ 64-bit Mode:
+
 ```bash
-uv run api-monitor-toolkit spider --parameters --call-stack -v
+make run64 ARGS="spider -p -c -o output.json -v"
+```
+
+▶️ 32-bit Mode:
+
+```bash
+make run32 ARGS="spider -p -c -o output.json -v"
 ```
 
 ## ✨ Features
