@@ -1,7 +1,13 @@
 from typing import Annotated, Optional
+import re
+import time
+from pathlib import Path
 
 import typer
 import win32gui
+import win32con as wc
+import commctrl as cc
+
 from api_monitor_toolkit.core.discovery import (
     find_child_windows,
     find_control,
@@ -11,7 +17,7 @@ from api_monitor_toolkit.core.exceptions import (
     ChildControlsNotFound,
     MainWindowNotFound,
 )
-from api_monitor_toolkit.core.remote import RemoteListView
+from api_monitor_toolkit.core.remote import RemoteListView, RemoteTreeView
 from api_monitor_toolkit.utils.callbacks import verbose_callback
 from api_monitor_toolkit.utils.helpers import ValueTransformer, get_mapped_data
 from api_monitor_toolkit.utils.logger import get_logger
@@ -24,6 +30,63 @@ from api_monitor_toolkit.utils.output import choose_output_handler
 
 logger = get_logger(__name__)
 app = typer.Typer()
+
+def extract_metadata(tree_node_text: str) -> dict:
+    """
+    Extracts path, filename and PID from the root TreeView node text.
+    """
+    match = re.match(r"(.+?)\s+-\s+PID:\s+(\d+)\s+-\s+\(.+?\)", tree_node_text)
+    if not match:
+        logger.warning(f"Failed to parse metadata from tree node text: {tree_node_text}")
+        return {}
+    
+    full_path, pid = match.groups()
+    return {
+        "path": full_path,
+        "filename": Path(full_path).name,
+        "pid": int(pid)
+    }
+
+def process_summary_for_node(main_window: int, transformer: ValueTransformer, include_params: bool, include_stack: bool) -> list[dict]:
+    """
+    Locates and processes summary entries for the currently selected TreeView node.
+    """
+    try:
+        summary_window = find_child_windows(main_window, lambda hwnd: "Summary" in win32gui.GetWindowText(hwnd))[0]
+        header_summary = find_control(summary_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysHeader32")
+        list_summary = find_control(summary_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysListView32")
+    except (ChildControlsNotFound, IndexError):
+        logger.warning("No summary controls found for current node.")
+        return []
+
+    results = []
+
+    with RemoteListView(header_summary, list_summary) as summary_view:
+        summary_rows = summary_view.as_json()
+
+        for idx, row in enumerate(summary_rows):
+            entry = {
+                (mapped := SUMMARY_MAPPING.get(k, k)): transformer.transform(mapped, v)
+                for k, v in row.items()
+            }
+
+            if include_params or include_stack:
+                summary_view.select(idx)
+
+            if include_params:
+                entry["parameters"] = get_mapped_data(
+                    main_window, "Parameters", PARAMS_MAPPING, transformer, skip_penultimate_empty=True
+                )
+
+            if include_stack:
+                entry["call_stack"] = get_mapped_data(
+                    main_window, "Call Stack", CALLSTACK_MAPPING, transformer
+                )
+
+            results.append(entry)
+
+    return results
+
 
 @app.command()
 def spider(
@@ -52,42 +115,31 @@ def spider(
     try:
         transformer = ValueTransformer()
         output_handler = choose_output_handler(output)
+        output_handler.start()
 
         main_window = find_main_window(lambda title: "API Monitor v2" in title)
-        summary_window = find_child_windows(main_window, lambda hwnd: "Summary" in win32gui.GetWindowText(hwnd))[0]
+        treeview_hwnd = find_control(main_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysTreeView32")
 
-        header_summary = find_control(summary_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysHeader32")
-        list_summary = find_control(summary_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysListView32")
+        with RemoteTreeView(treeview_hwnd) as tree:
+            for node_text, node_handle in tree.walk_roots():
+                logger.info(f"Processing tree node: {node_text}")
+                metadata = extract_metadata(node_text)
 
-        with RemoteListView(header_summary, list_summary) as summary_view:
-            summary_rows = summary_view.as_json()
+                # Select the node in the TreeView UI
+                win32gui.SendMessage(treeview_hwnd, cc.TVM_SELECTITEM, cc.TVGN_CARET, node_handle)
+                win32gui.PostMessage(treeview_hwnd, wc.WM_KEYDOWN, wc.VK_RETURN, 0)
+                time.sleep(0.1)  # Give UI time to update
 
-            output_handler.start()
+                # Process summary rows for this node
+                entries = process_summary_for_node(main_window, transformer, parameters, call_stack)
 
-            for idx, row in enumerate(summary_rows):
-                entry = {
-                    (mapped := SUMMARY_MAPPING.get(k, k)): transformer.transform(mapped, v)
-                    for k, v in row.items()
-                }
+                for entry in entries:
+                    entry["metadata"] = metadata
+                    output_handler.write(entry)
 
-                if parameters or call_stack:
-                    summary_view.select(idx)
-
-                if parameters:
-                    entry["parameters"] = get_mapped_data(
-                        main_window, "Parameters", PARAMS_MAPPING, transformer, skip_penultimate_empty=True
-                    )
-
-                if call_stack:
-                    entry["call_stack"] = get_mapped_data(
-                        main_window, "Call Stack", CALLSTACK_MAPPING, transformer
-                    )
-
-                output_handler.write(entry)
-
-            output_handler.finish()
+        output_handler.finish()
 
     except MainWindowNotFound:
         logger.error("Failed to locate the main application window. Is API Monitor running?")
     except ChildControlsNotFound:
-        logger.warning("No ListView controls found in the target window.")
+        logger.warning("No TreeView control found in the target window.")

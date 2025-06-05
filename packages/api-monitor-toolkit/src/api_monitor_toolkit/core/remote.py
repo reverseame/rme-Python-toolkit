@@ -169,3 +169,81 @@ class RemoteListView:
 
     def __exit__(self, *_):
         self.close()
+
+class TVITEMEX(ctypes.Structure):
+    _fields_ = [
+        ("mask", wintypes.UINT),
+        ("hItem", wintypes.HANDLE),
+        ("state", wintypes.UINT),
+        ("stateMask", wintypes.UINT),
+        ("pszText", wintypes.LPWSTR),
+        ("cchTextMax", wintypes.INT),
+        ("iImage", wintypes.INT),
+        ("iSelectedImage", wintypes.INT),
+        ("cChildren", wintypes.INT),
+        ("lParam", wintypes.LPARAM),
+        ("iIntegral", wintypes.INT),
+        ("uStateEx", wintypes.UINT),
+        ("hwnd", wintypes.HWND),
+        ("iExpandedImage", wintypes.INT),
+        ("iReserved", wintypes.INT),
+    ]
+
+
+class RemoteTreeView:
+    BUFFER_SIZE = 4096
+    ITEM_SIZE = ctypes.sizeof(TVITEMEX)
+
+    def __init__(self, hwnd: int):
+        self.hwnd = hwnd
+        self.process = RemoteProcess(hwnd)
+        self.buffer = self.process.alloc(self.BUFFER_SIZE)
+        self.temp = self.process.alloc(self.ITEM_SIZE)
+
+    def get_root_item(self):
+        return win32gui.SendMessage(self.hwnd, cc.TVM_GETNEXTITEM, cc.TVGN_ROOT, 0)
+
+    def get_child_item(self, hitem):
+        return win32gui.SendMessage(self.hwnd, cc.TVM_GETNEXTITEM, cc.TVGN_CHILD, hitem)
+
+    def get_next_sibling(self, hitem):
+        return win32gui.SendMessage(self.hwnd, cc.TVM_GETNEXTITEM, cc.TVGN_NEXT, hitem)
+
+    def get_item_text(self, hitem):
+        item = TVITEMEX()
+        item.mask = cc.TVIF_TEXT
+        item.hItem = hitem
+        item.pszText = ctypes.cast(self.buffer, wintypes.LPWSTR)
+        item.cchTextMax = self.BUFFER_SIZE // 2
+        self.process.write(self.temp, ctypes.string_at(ctypes.byref(item), self.ITEM_SIZE))
+        win32gui.SendMessage(self.hwnd, cc.TVM_GETITEMW, 0, self.temp)
+        return self.process.read_utf16z(self.buffer, self.BUFFER_SIZE)
+
+    def walk_roots(self):
+        hitem = self.get_root_item()
+        while hitem:
+            text = self.get_item_text(hitem)
+            yield text, hitem
+            hitem = self.get_next_sibling(hitem)
+
+    def walk_tree(self, hitem=None):
+        if hitem is None:
+            hitem = self.get_root_item()
+        while hitem:
+            text = self.get_item_text(hitem)
+            yield text, hitem
+            child = self.get_child_item(hitem)
+            if child:
+                yield from self.walk_tree(child)
+            hitem = self.get_next_sibling(hitem)
+
+    def close(self):
+        self.process.free(self.buffer)
+        self.process.free(self.temp)
+        self.process.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
