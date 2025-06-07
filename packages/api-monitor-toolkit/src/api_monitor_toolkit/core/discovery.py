@@ -5,7 +5,7 @@ from api_monitor_toolkit.core.exceptions import (
     ChildControlsNotFound,
     MainWindowNotFound,
 )
-from api_monitor_toolkit.utils.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -31,7 +31,9 @@ def _log_window_info(
         f"HWND    : {hwnd}",
         f"Class   : {class_name}",
         f"Title   : {title}" if show_title else None,
-        f"Rect    : ({left}, {top}) - ({right}, {bottom})  [Width={width}, Height={height}]" if show_rect else None,
+        f"Rect    : ({left}, {top}) - ({right}, {bottom})  [Width={width}, Height={height}]"
+        if show_rect
+        else None,
         f"Visible : {int(visible)}" if show_visibility else None,
         f"Enabled : {int(enabled)}" if show_visibility else None,
     ]
@@ -70,32 +72,50 @@ def find_main_window(title_filter: Callable[[str], bool]) -> int:
     return hwnd
 
 
-def find_child_windows(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> list[int]:
+def find_child_windows(
+    hwnd_parent: int, filter_callback: Callable[[int], bool]
+) -> list[int]:
     """Returns all child HWNDs under the given parent that match the filter."""
     result = []
 
     for hwnd in _get_child_windows(hwnd_parent):
         if filter_callback(hwnd):
-            _log_window_info(hwnd, label="Child Window", show_rect=False, show_visibility=False)
+            _log_window_info(
+                hwnd, label="Child Window", show_rect=False, show_visibility=False
+            )
             result.append(hwnd)
 
-    logger.info(f"{len(result)} matching child window(s) found under parent HWND={hwnd_parent}")
+    logger.info(
+        f"{len(result)} matching child window(s) found under parent HWND={hwnd_parent}"
+    )
     return result
 
 
-def find_child_controls(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> list[int]:
+def find_child_controls(
+    hwnd_parent: int, filter_callback: Callable[[int], bool]
+) -> list[int]:
     """Returns all matching control HWNDs under the given parent (e.g., ListView, TreeView)."""
     matched_hwnds = []
 
     for hwnd in _get_child_windows(hwnd_parent):
         if filter_callback(hwnd):
-            _log_window_info(hwnd, label="Control", show_title=False, show_rect=False, show_visibility=False)
+            _log_window_info(
+                hwnd,
+                label="Control",
+                show_title=False,
+                show_rect=False,
+                show_visibility=False,
+            )
             matched_hwnds.append(hwnd)
 
     if not matched_hwnds:
-        raise ChildControlsNotFound(f"No matching controls found under HWND={hwnd_parent}.")
+        raise ChildControlsNotFound(
+            f"No matching controls found under HWND={hwnd_parent}."
+        )
 
-    logger.info(f"{len(matched_hwnds)} control(s) found in parent window (HWND={hwnd_parent})")
+    logger.info(
+        f"{len(matched_hwnds)} control(s) found in parent window (HWND={hwnd_parent})"
+    )
     return matched_hwnds
 
 
@@ -106,8 +126,16 @@ def find_control(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> in
     """
     for hwnd in _get_child_windows(hwnd_parent):
         if filter_callback(hwnd):
-            _log_window_info(hwnd, label="Matched Control", show_title=False, show_rect=False, show_visibility=False)
-            logger.info(f"Control found (HWND={hwnd}) under parent (HWND={hwnd_parent})")
+            _log_window_info(
+                hwnd,
+                label="Matched Control",
+                show_title=False,
+                show_rect=False,
+                show_visibility=False,
+            )
+            logger.info(
+                f"Control found (HWND={hwnd}) under parent (HWND={hwnd_parent})"
+            )
             return hwnd
 
     raise ChildControlsNotFound(f"No matching control found under HWND={hwnd_parent}.")

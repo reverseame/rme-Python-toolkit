@@ -5,7 +5,7 @@ from typing import Any, Callable
 import win32gui
 from api_monitor_toolkit.core.discovery import find_child_windows, find_control
 from api_monitor_toolkit.core.remote import RemoteListView
-from api_monitor_toolkit.utils.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -71,12 +71,18 @@ def get_mapped_data(
     title_filter: str,
     mapping: dict,
     transformer: ValueTransformer,
-    skip_penultimate_empty=False
+    skip_penultimate_empty=False,
 ) -> list[dict[str, Any]]:
     try:
-        window = find_child_windows(main_window, lambda hwnd: title_filter in win32gui.GetWindowText(hwnd))[0]
-        header = find_control(window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysHeader32")
-        listview = find_control(window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysListView32")
+        window = find_child_windows(
+            main_window, lambda hwnd: title_filter in win32gui.GetWindowText(hwnd)
+        )[0]
+        header = find_control(
+            window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysHeader32"
+        )
+        listview = find_control(
+            window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysListView32"
+        )
         with RemoteListView(header, listview) as view:
             data = view.as_json()
             if skip_penultimate_empty:
@@ -100,6 +106,7 @@ def get_mapped_data(
     except Exception as e:
         logger.warning(f"Failed to extract data from '{title_filter}': {e}")
         return []
+
 
 def copy_to_clipboard(text: str) -> None:
     user32 = ctypes.windll.user32

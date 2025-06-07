@@ -4,11 +4,12 @@ from typing import Optional
 from urllib.parse import urlparse
 
 import requests
-from api_monitor_toolkit.utils.logger import get_logger
+from common.logger import get_logger
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 logger = get_logger(__name__)
+
 
 def choose_output_handler(output: Optional[str]) -> "OutputHandler":
     if output is None:
@@ -19,21 +20,28 @@ def choose_output_handler(output: Optional[str]) -> "OutputHandler":
     else:
         return JSONFileHandler(Path(output))
 
+
 class OutputHandler:
     def start(self):
         pass
+
     def write(self, entry: dict):
         pass
+
     def finish(self):
         pass
+
 
 class StdoutHandler(OutputHandler):
     def start(self):
         pass
+
     def write(self, entry: dict):
         print(json.dumps(entry, indent=2), end="")
+
     def finish(self):
         pass
+
 
 class JSONFileHandler(OutputHandler):
     def __init__(self, path: Path):
@@ -55,6 +63,7 @@ class JSONFileHandler(OutputHandler):
         self.file.write("\n]\n")
         self.file.close()
         logger.info(f"Output saved to {Path(self.path).resolve()}")
+
 
 class HTTPPostHandler(OutputHandler):
     def __init__(self, url: str):

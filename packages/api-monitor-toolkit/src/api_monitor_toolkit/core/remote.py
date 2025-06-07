@@ -52,20 +52,27 @@ class RemoteProcess:
 
 class HDITEM(ctypes.Structure):
     _fields_ = [
-        ("mask", wintypes.UINT), ("cxy", wintypes.INT),
-        ("pszText", wintypes.LPWSTR), ("hbm", wintypes.HBITMAP),
-        ("cchTextMax", wintypes.INT), ("fmt", wintypes.INT),
-        ("lParam", wintypes.LPARAM)
+        ("mask", wintypes.UINT),
+        ("cxy", wintypes.INT),
+        ("pszText", wintypes.LPWSTR),
+        ("hbm", wintypes.HBITMAP),
+        ("cchTextMax", wintypes.INT),
+        ("fmt", wintypes.INT),
+        ("lParam", wintypes.LPARAM),
     ]
 
 
 class LVITEM(ctypes.Structure):
     _fields_ = [
-        ("mask", wintypes.UINT), ("iItem", wintypes.INT),
-        ("iSubItem", wintypes.INT), ("state", wintypes.UINT),
-        ("stateMask", wintypes.UINT), ("pszText", wintypes.LPWSTR),
-        ("cchTextMax", wintypes.INT), ("iImage", wintypes.INT),
-        ("lParam", wintypes.LPARAM)
+        ("mask", wintypes.UINT),
+        ("iItem", wintypes.INT),
+        ("iSubItem", wintypes.INT),
+        ("state", wintypes.UINT),
+        ("stateMask", wintypes.UINT),
+        ("pszText", wintypes.LPWSTR),
+        ("cchTextMax", wintypes.INT),
+        ("iImage", wintypes.INT),
+        ("lParam", wintypes.LPARAM),
     ]
 
 
@@ -88,7 +95,9 @@ class RemoteListView:
             item.mask = cc.HDI_TEXT
             item.pszText = ctypes.cast(self.buffer, wintypes.LPWSTR)
             item.cchTextMax = self.BUFFER_SIZE // 2
-            self.process.write(self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item)))
+            self.process.write(
+                self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item))
+            )
             win32gui.SendMessage(self.header, cc.HDM_GETITEMW, i, self.temp)
             columns.append(self.process.read_utf16z(self.buffer, self.BUFFER_SIZE))
         return columns
@@ -102,24 +111,32 @@ class RemoteListView:
             item.iSubItem = col
             item.pszText = ctypes.cast(self.buffer, wintypes.LPWSTR)
             item.cchTextMax = self.BUFFER_SIZE // 2
-            self.process.write(self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item)))
+            self.process.write(
+                self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item))
+            )
             win32gui.SendMessage(self.listview, cc.LVM_GETITEMTEXTW, index, self.temp)
             row.append(self.process.read_utf16z(self.buffer, self.BUFFER_SIZE))
         return row
 
     @staticmethod
     def _normalize(text: str) -> str:
-        return unicodedata.normalize('NFKC', text).strip().lower()
+        return unicodedata.normalize("NFKC", text).strip().lower()
 
     def _select_columns(self, headers, desired):
         if desired is None:
             return list(range(len(headers))), headers
 
         normalized_map = {self._normalize(h): i for i, h in enumerate(headers)}
-        indices = [normalized_map[self._normalize(h)] for h in desired if self._normalize(h) in normalized_map]
+        indices = [
+            normalized_map[self._normalize(h)]
+            for h in desired
+            if self._normalize(h) in normalized_map
+        ]
 
         if not indices:
-            raise KeyError(f"None of the requested headers exist.\nAvailable: {headers}")
+            raise KeyError(
+                f"None of the requested headers exist.\nAvailable: {headers}"
+            )
 
         selected_headers = [headers[i] for i in indices]
         return indices, selected_headers
@@ -128,7 +145,10 @@ class RemoteListView:
         headers = self.get_columns()
         indices, _ = self._select_columns(headers, desired_columns)
         total_items = win32gui.SendMessage(self.listview, cc.LVM_GETITEMCOUNT, 0, 0)
-        return [[self._read_row(i, len(headers))[j] for j in indices] for i in range(total_items)]
+        return [
+            [self._read_row(i, len(headers))[j] for j in indices]
+            for i in range(total_items)
+        ]
 
     def as_json(self, desired_columns: list[str] | None = None) -> list[dict[str, str]]:
         headers = self.get_columns()
@@ -138,7 +158,9 @@ class RemoteListView:
         data = []
         for i in range(total_items):
             row = self._read_row(i, len(headers))
-            data.append({header: row[j] for header, j in zip(selected_headers, indices)})
+            data.append(
+                {header: row[j] for header, j in zip(selected_headers, indices)}
+            )
         return data
 
     def each(self, desired_columns=None, callback=None):
@@ -150,8 +172,12 @@ class RemoteListView:
     def select(self, index: int, style: str = "select") -> bool:
         item = LVITEM()
         item.stateMask = item.state = cc.LVIS_SELECTED | cc.LVIS_FOCUSED
-        self.process.write(self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item)))
-        result = win32gui.SendMessage(self.listview, cc.LVM_SETITEMSTATE, index, self.temp)
+        self.process.write(
+            self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item))
+        )
+        result = win32gui.SendMessage(
+            self.listview, cc.LVM_SETITEMSTATE, index, self.temp
+        )
 
         if result and style == "click":
             win32gui.SendMessage(self.listview, cc.LVM_ENSUREVISIBLE, index, False)
@@ -169,6 +195,7 @@ class RemoteListView:
 
     def __exit__(self, *_):
         self.close()
+
 
 class TVITEMEX(ctypes.Structure):
     _fields_ = [
@@ -215,7 +242,9 @@ class RemoteTreeView:
         item.hItem = hitem
         item.pszText = ctypes.cast(self.buffer, wintypes.LPWSTR)
         item.cchTextMax = self.BUFFER_SIZE // 2
-        self.process.write(self.temp, ctypes.string_at(ctypes.byref(item), self.ITEM_SIZE))
+        self.process.write(
+            self.temp, ctypes.string_at(ctypes.byref(item), self.ITEM_SIZE)
+        )
         win32gui.SendMessage(self.hwnd, cc.TVM_GETITEMW, 0, self.temp)
         return self.process.read_utf16z(self.buffer, self.BUFFER_SIZE)
 

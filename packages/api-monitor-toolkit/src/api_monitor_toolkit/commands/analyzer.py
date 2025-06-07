@@ -18,7 +18,7 @@ import win32gui
 from api_monitor_toolkit.core.discovery import MainWindowNotFound, find_main_window
 from api_monitor_toolkit.utils.callbacks import verbose_callback
 from api_monitor_toolkit.utils.helpers import copy_to_clipboard
-from api_monitor_toolkit.utils.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 app = typer.Typer()
@@ -28,6 +28,7 @@ class AttachMode(str, Enum):
     """
     Different methods to attach API Monitor to the target process.
     """
+
     STATIC_IMPORT = "static-import"
     CONTEXT_SWITCH = "context-switch"
     INTERNAL_DEBUGGER = "internal-debugger"
@@ -51,6 +52,7 @@ def set_foreground(hwnd: int):
     win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
     win32gui.SetForegroundWindow(hwnd)
 
+
 def bring_monitor_to_front():
     """
     Find the 'Monitor Process' dialog or 'API Monitor' main window
@@ -62,6 +64,7 @@ def bring_monitor_to_front():
         return True
     return False
 
+
 def open_monitor_dialog(shell):
     """
     Wait a moment and send Ctrl+M to open the 'Monitor Process' dialog in API Monitor.
@@ -72,7 +75,9 @@ def open_monitor_dialog(shell):
     shell.AppActivate("Monitor Process")
 
 
-def fill_monitor_form(shell, binary: Path, args: list[str], workdir: Path, mode: AttachMode):
+def fill_monitor_form(
+    shell, binary: Path, args: list[str], workdir: Path, mode: AttachMode
+):
     """
     Populate the 'Monitor Process' dialog fields: binary path, arguments, working directory, and attach mode.
     """
@@ -168,7 +173,9 @@ def wait_for_process_exit_unbounded(process_name: str):
     """
     logger.info(f"Waiting for process '{process_name}' to exit...")
     while True:
-        if not any(p.name().lower() == process_name.lower() for p in psutil.process_iter()):
+        if not any(
+            p.name().lower() == process_name.lower() for p in psutil.process_iter()
+        ):
             logger.info(f"Process '{process_name}' has exited.")
             return
         time.sleep(1)
@@ -245,21 +252,40 @@ def save_results(results: list[Path], output: str, temp: Path, base_name: str):
 
 @app.command()
 def analyzer(
-    input: Annotated[Path, typer.Option("-i", "--input", exists=True, help="Path to the target binary")],
-    arguments: Annotated[str, typer.Option("-a", "--args", help="Command-line arguments for the target")] = "",
-    working_directory: Annotated[Path, typer.Option("-w", "--workdir", help="Working directory")] = Path.cwd(),
-    attach_mode: Annotated[AttachMode, typer.Option("-m", "--mode", help="Attach mode")] = AttachMode.STATIC_IMPORT,
-    rohitab_dir: Annotated[Path, typer.Option("-r", "--rohitab", help="API Monitor install directory")] = Path(r"C:\Program Files\rohitab.com\API Monitor"),
-    timeout: Annotated[int, typer.Option("-t", "--timeout", help="Seconds to wait for window & process start")] = 5,
-    output: Annotated[str, typer.Option("-o", "--output", help="Output path (.zip or HTTP URL)")] = "results.zip",
+    input: Annotated[
+        Path,
+        typer.Option("-i", "--input", exists=True, help="Path to the target binary"),
+    ],
+    arguments: Annotated[
+        str, typer.Option("-a", "--args", help="Command-line arguments for the target")
+    ] = "",
+    working_directory: Annotated[
+        Path, typer.Option("-w", "--workdir", help="Working directory")
+    ] = Path.cwd(),
+    attach_mode: Annotated[
+        AttachMode, typer.Option("-m", "--mode", help="Attach mode")
+    ] = AttachMode.STATIC_IMPORT,
+    rohitab_dir: Annotated[
+        Path, typer.Option("-r", "--rohitab", help="API Monitor install directory")
+    ] = Path(r"C:\Program Files\rohitab.com\API Monitor"),
+    timeout: Annotated[
+        int,
+        typer.Option(
+            "-t", "--timeout", help="Seconds to wait for window & process start"
+        ),
+    ] = 5,
+    output: Annotated[
+        str, typer.Option("-o", "--output", help="Output path (.zip or HTTP URL)")
+    ] = "results.zip",
     verbosity: Annotated[
         int,
         typer.Option(
-            "-v", "--verbose",
+            "-v",
+            "--verbose",
             count=True,
             callback=verbose_callback,
-            help="Increase logging verbosity"
-        )
+            help="Increase logging verbosity",
+        ),
     ] = 0,
 ):
     """

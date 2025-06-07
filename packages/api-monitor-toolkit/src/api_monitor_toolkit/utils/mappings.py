@@ -13,7 +13,7 @@ SUMMARY_MAPPING = {
     "Return Address": "return_address",
     "Error": "error",
     "Duration": "duration",
-    "Full Category": "full_category"
+    "Full Category": "full_category",
 }
 
 PARAMS_MAPPING = {
@@ -21,7 +21,7 @@ PARAMS_MAPPING = {
     "Type": "type",
     "Name": "name",
     "Pre-Call Value": "before",
-    "Post-Call Value": "after"
+    "Post-Call Value": "after",
 }
 
 CALLSTACK_MAPPING = {
@@ -29,5 +29,5 @@ CALLSTACK_MAPPING = {
     "Module": "module",
     "Address": "address",
     "Offset": "offset",
-    "Location": "location"
+    "Location": "location",
 }
