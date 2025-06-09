@@ -1,0 +1,100 @@
+meta:
+  name: cryptographic_key_management
+  description: Detects key management operations, such as export, import, duplication and destruction
+  categories:
+    - cryptography
+  tags:
+    - cryptography
+    - key-management
+  mbcs:
+    - C0059.001
+    - C0028
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Key handle"
+      - field: parameters[?name=='hExpKey'].pre_value
+        alias: "Encryption key"  # This parameter is often used to encrypt the exported private key
+      - field: parameters[?name=='dwBlobType'].pre_value
+        alias: "Blob type"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+      - field: parameters[?name=='pbData'].post_value
+        alias: "Export buffer"
+    where:
+      or:
+        - startswith: ["api", "CryptExportKey"]
+        - startswith: ["api", "CPExportKey"]
+
+  - select:
+      - field: parameters[?name=='phKey'].post_value
+        alias: "Key handle"
+      - field: parameters[?name=='hPubKey'].pre_value
+        alias: "Decryption key"  # Used if the key blob is ciphered
+      - field: parameters[?name=='pbData'].pre_value\
+        alias: "Key blob"
+      - field: parameters[?name=='dwDataLen'].pre_value
+        alias: "Blob size"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      or:
+        - startswith: ["api", "CryptImportKey"]
+        - startswith: ["api", "CPImportKey"]
+
+# CRYPTOAPI: DUPLICATE A KEY
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Handle to the original key"
+        transform:
+          - regex: '0x[0-9a-fA-F]+\s*=\s*(0x[0-9a-fA-F]+)'
+      - field: parameters[?name=='phKey'].post_value
+        alias: "Handle to the duplicated key"
+        transform:
+          - regex: '0x[0-9a-fA-F]+\s*=\s*(0x[0-9a-fA-F]+)'
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      or:
+        - startswith: [ "api", "CryptDuplicateKey" ]
+        - startswith: [ "api", "CPDuplicateKey" ]
+
+# CNG: DUPLICATE A KEY
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Handle to the original key"
+      - field: parameters[?name=='phNewKey'].pre_value
+        alias: "Handle to the duplicated key"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      - startswith: ["api", "BCryptDuplicateKey"]
+
+# CRYPTOAPI: DESTROY A KEY
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Handle to the key"
+        transform:
+          - regex: '0x[0-9a-fA-F]+\s*=\s*(0x[0-9a-fA-F]+)'
+    where:
+      or:
+      - startswith: [ "api", "CryptDestroyKey" ]
+      - startswith: [ "api", "CPDestroyKey" ]
+
+# CNG: DESTROY A KEY
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Handle to the key"
+    where:
+      startswith: [ "api", "BCryptDestroyKey" ]
+
+# CNG: DESTROY A SECRET
+  - select:
+      - field: parameters[?name=='hSecret'].pre_value
+        alias: "Handle to the secret"
+    where:
+      startswith: [ "api", "BCryptDestroySecret" ]
