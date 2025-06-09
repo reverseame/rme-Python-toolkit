@@ -43,24 +43,30 @@ def _log_window_info(
 
 def _get_child_windows(hwnd: int) -> list[int]:
     """Returns all direct child HWNDs for a given parent window."""
+    logger.debug(f"Enumerating child windows of parent HWND={hwnd}")
     result = []
     win32gui.EnumChildWindows(hwnd, lambda h, _: result.append(h), None)
+    logger.debug(f"Found {len(result)} total child HWNDs under parent HWND={hwnd}")
     return result
 
 
 def find_main_window(title_filter: Callable[[str], bool]) -> int:
     """Finds the main window matching the given title filter."""
+    logger.debug("Searching for main window matching title filter...")
     matches = []
 
     def enum_callback(hwnd, _):
         if win32gui.IsWindowVisible(hwnd):
             title = win32gui.GetWindowText(hwnd)
+            logger.debug(f"Checking window HWND={hwnd} with title: '{title}'")
             if title_filter(title):
+                logger.debug(f"Title matches filter: '{title}' (HWND={hwnd})")
                 matches.append(hwnd)
 
     win32gui.EnumWindows(enum_callback, None)
 
     if not matches:
+        logger.error("No matching main window found.")
         raise MainWindowNotFound("No matching main window found.")
 
     if len(matches) > 1:
@@ -76,10 +82,13 @@ def find_child_windows(
     hwnd_parent: int, filter_callback: Callable[[int], bool]
 ) -> list[int]:
     """Returns all child HWNDs under the given parent that match the filter."""
+    logger.debug(f"Searching for child windows of parent HWND={hwnd_parent}")
     result = []
 
     for hwnd in _get_child_windows(hwnd_parent):
+        logger.debug(f"Evaluating child HWND={hwnd}")
         if filter_callback(hwnd):
+            logger.debug(f"Child HWND={hwnd} matched filter")
             _log_window_info(
                 hwnd, label="Child Window", show_rect=False, show_visibility=False
             )
@@ -95,10 +104,13 @@ def find_child_controls(
     hwnd_parent: int, filter_callback: Callable[[int], bool]
 ) -> list[int]:
     """Returns all matching control HWNDs under the given parent (e.g., ListView, TreeView)."""
+    logger.debug(f"Searching for child controls in parent HWND={hwnd_parent}")
     matched_hwnds = []
 
     for hwnd in _get_child_windows(hwnd_parent):
+        logger.debug(f"Evaluating control HWND={hwnd}")
         if filter_callback(hwnd):
+            logger.debug(f"Control HWND={hwnd} matched filter")
             _log_window_info(
                 hwnd,
                 label="Control",
@@ -109,6 +121,7 @@ def find_child_controls(
             matched_hwnds.append(hwnd)
 
     if not matched_hwnds:
+        logger.error(f"No matching controls found under HWND={hwnd_parent}")
         raise ChildControlsNotFound(
             f"No matching controls found under HWND={hwnd_parent}."
         )
@@ -124,8 +137,12 @@ def find_control(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> in
     Finds and returns the first control under the given parent that matches the filter.
     Raises ChildControlsNotFound if none is found.
     """
+    logger.debug(f"Searching for a single matching control under parent HWND={hwnd_parent}")
+
     for hwnd in _get_child_windows(hwnd_parent):
+        logger.debug(f"Evaluating control HWND={hwnd}")
         if filter_callback(hwnd):
+            logger.debug(f"Control HWND={hwnd} matched filter")
             _log_window_info(
                 hwnd,
                 label="Matched Control",
@@ -138,4 +155,5 @@ def find_control(hwnd_parent: int, filter_callback: Callable[[int], bool]) -> in
             )
             return hwnd
 
+    logger.error(f"No matching control found under HWND={hwnd_parent}")
     raise ChildControlsNotFound(f"No matching control found under HWND={hwnd_parent}.")

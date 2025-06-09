@@ -12,13 +12,12 @@ logger = get_logger(__name__)
 
 
 def choose_output_handler(output: Optional[str]) -> "OutputHandler":
-    if output is None:
+    if not output:
         return StdoutHandler()
-    parsed = urlparse(output)
-    if parsed.scheme in ("http", "https"):
+    scheme = urlparse(output).scheme
+    if scheme in ("http", "https"):
         return HTTPPostHandler(output)
-    else:
-        return JSONFileHandler(Path(output))
+    return JSONLinesOutputHandler(Path(output))
 
 
 class OutputHandler:
@@ -26,43 +25,43 @@ class OutputHandler:
         pass
 
     def write(self, entry: dict):
-        pass
+        raise NotImplementedError
 
     def finish(self):
         pass
 
 
 class StdoutHandler(OutputHandler):
-    def start(self):
-        pass
-
     def write(self, entry: dict):
-        print(json.dumps(entry, indent=2), end="")
-
-    def finish(self):
-        pass
+        print(json.dumps(entry, ensure_ascii=False))
 
 
-class JSONFileHandler(OutputHandler):
+class JSONLinesOutputHandler(OutputHandler):
     def __init__(self, path: Path):
         self.path = path
-        self.file = open(path, "w", encoding="utf-8")
+        self.file = None
         self.first = True
 
     def start(self):
-        self.file.write("[\n")
+        try:
+            self.file = open(self.path, "w", encoding="utf-8")
+            self.file.write("[\n")
+        except OSError as e:
+            logger.error(f"Failed to open {self.path}: {e}")
+            raise
 
     def write(self, entry: dict):
-        if not self.first:
-            self.file.write(",\n")
-        else:
+        if self.file is None:
+            raise RuntimeError("Output file not open.")
+        prefix = "" if self.first else ",\n"
+        self.file.write(f"{prefix}{json.dumps(entry, ensure_ascii=False)}")
+        if self.first:
             self.first = False
-        self.file.write(json.dumps(entry, indent=2))
 
     def finish(self):
-        self.file.write("\n]\n")
-        self.file.close()
-        logger.info(f"Output saved to {Path(self.path).resolve()}")
+        if self.file:
+            self.file.write("\n]\n")
+            self.file.close()
 
 
 class HTTPPostHandler(OutputHandler):
@@ -72,20 +71,19 @@ class HTTPPostHandler(OutputHandler):
 
     def start(self):
         self.session = requests.Session()
-        # Desactivar retries automáticos
         adapter = HTTPAdapter(max_retries=Retry(total=0))
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
 
     def write(self, entry: dict):
-        if not self.session:
+        if self.session is None:
             self.start()
         try:
-            response = self.session.post(self.url, json=entry)
-            if response.status_code >= 400:
-                logger.warning(f"HTTP POST failed with status {response.status_code}")
-        except Exception as e:
-            logger.warning(f"HTTP POST exception: {e}")
+            resp = self.session.post(self.url, json=entry)
+            if resp.status_code >= 400:
+                logger.warning(f"HTTP POST failed: {resp.status_code}")
+        except requests.RequestException as e:
+            logger.warning(f"HTTP POST error: {e}")
 
     def finish(self):
         if self.session:

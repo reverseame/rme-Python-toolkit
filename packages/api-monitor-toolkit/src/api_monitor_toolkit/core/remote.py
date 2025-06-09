@@ -7,6 +7,9 @@ import win32api
 import win32con as wc
 import win32gui
 import win32process
+from common.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class RemoteProcess:
@@ -14,26 +17,38 @@ class RemoteProcess:
 
     def __init__(self, hwnd: int):
         process_id = win32process.GetWindowThreadProcessId(hwnd)[1]
+        logger.debug(f"Opening process ID: {process_id}")
         permissions = wc.PROCESS_VM_OPERATION | wc.PROCESS_VM_READ | wc.PROCESS_VM_WRITE
         self.handle = self._kernel32.OpenProcess(permissions, False, process_id)
         if not self.handle:
+            logger.error("Failed to open process")
             raise ctypes.WinError(ctypes.get_last_error())
+        logger.debug(f"Process handle: {self.handle}")
 
     def alloc(self, size: int) -> int:
-        return self._kernel32.VirtualAllocEx(
+        address = self._kernel32.VirtualAllocEx(
             self.handle, 0, size, wc.MEM_RESERVE | wc.MEM_COMMIT, wc.PAGE_READWRITE
         )
+        logger.debug(f"Allocated {size} bytes at address: {hex(address)}")
+        return address
 
     def free(self, address: int):
+        logger.debug(f"Freeing memory at address: {hex(address)}")
         self._kernel32.VirtualFreeEx(self.handle, address, 0, wc.MEM_RELEASE)
 
     def read(self, address: int, size: int) -> bytes:
+        logger.debug(f"Reading {size} bytes from address: {hex(address)}")
         buffer = ctypes.create_string_buffer(size)
-        self._kernel32.ReadProcessMemory(self.handle, address, buffer, size, None)
+        success = self._kernel32.ReadProcessMemory(self.handle, address, buffer, size, None)
+        if not success:
+            logger.error(f"Failed to read memory at address: {hex(address)}")
         return buffer.raw
 
     def write(self, address: int, data: bytes | ctypes.Array):
-        self._kernel32.WriteProcessMemory(self.handle, address, data, len(data), None)
+        logger.debug(f"Writing data to address: {hex(address)} (len={len(data)})")
+        success = self._kernel32.WriteProcessMemory(self.handle, address, data, len(data), None)
+        if not success:
+            logger.error(f"Failed to write to address: {hex(address)}")
 
     def read_utf16z(self, address: int, max_bytes: int) -> str:
         raw = self.read(address, max_bytes)
@@ -89,6 +104,7 @@ class RemoteListView:
 
     def get_columns(self) -> list[str]:
         count = win32gui.SendMessage(self.header, cc.HDM_GETITEMCOUNT, 0, 0)
+        logger.debug(f"Column count: {count}")
         columns = []
         for i in range(count):
             item = HDITEM()
@@ -99,11 +115,13 @@ class RemoteListView:
                 self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item))
             )
             win32gui.SendMessage(self.header, cc.HDM_GETITEMW, i, self.temp)
-            columns.append(self.process.read_utf16z(self.buffer, self.BUFFER_SIZE))
+            text = self.process.read_utf16z(self.buffer, self.BUFFER_SIZE)
+            columns.append(text)
         return columns
 
     def _read_row(self, index: int, num_columns: int) -> list[str]:
         row = []
+        logger.debug(f"Reading row {index}")
         for col in range(num_columns):
             item = LVITEM()
             item.mask = cc.LVIF_TEXT
@@ -115,7 +133,9 @@ class RemoteListView:
                 self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item))
             )
             win32gui.SendMessage(self.listview, cc.LVM_GETITEMTEXTW, index, self.temp)
-            row.append(self.process.read_utf16z(self.buffer, self.BUFFER_SIZE))
+            text = self.process.read_utf16z(self.buffer, self.BUFFER_SIZE)
+            logger.debug(f"Row {index} Col {col}: {text}")
+            row.append(text)
         return row
 
     @staticmethod
@@ -134,6 +154,7 @@ class RemoteListView:
         ]
 
         if not indices:
+            logger.warning(f"No matching columns. Requested: {desired}, Found: {headers}")
             raise KeyError(
                 f"None of the requested headers exist.\nAvailable: {headers}"
             )
@@ -145,6 +166,7 @@ class RemoteListView:
         headers = self.get_columns()
         indices, _ = self._select_columns(headers, desired_columns)
         total_items = win32gui.SendMessage(self.listview, cc.LVM_GETITEMCOUNT, 0, 0)
+        logger.debug(f"Total rows: {total_items}, Columns: {headers}")
         return [
             [self._read_row(i, len(headers))[j] for j in indices]
             for i in range(total_items)
@@ -152,22 +174,34 @@ class RemoteListView:
 
     def as_json(self, desired_columns: list[str] | None = None) -> list[dict[str, str]]:
         headers = self.get_columns()
+        logger.debug(f"as_json → headers: {headers!r}")
         indices, selected_headers = self._select_columns(headers, desired_columns)
         total_items = win32gui.SendMessage(self.listview, cc.LVM_GETITEMCOUNT, 0, 0)
-
+        logger.debug(f"as_json → total_items: {total_items}")
         data = []
         for i in range(total_items):
             row = self._read_row(i, len(headers))
             data.append(
                 {header: row[j] for header, j in zip(selected_headers, indices)}
             )
+        logger.debug(f"as_json → returning {len(data)} rows")
         return data
 
-    def each(self, desired_columns=None, callback=None):
-        for index, row in enumerate(self.as_json(desired_columns)):
-            if callback:
-                callback(row, index)
-            yield row
+    def each(self, desired_columns: list[str] | None = None):
+        # 1) obtén solo una vez las columnas y sus índices
+        headers = self.get_columns()
+        indices, selected_headers = self._select_columns(headers, desired_columns)
+
+        # 2) cuántas filas hay
+        total_items = win32gui.SendMessage(self.listview, cc.LVM_GETITEMCOUNT, 0, 0)
+        logger.debug(f"each → streaming {total_items} rows")
+
+        # 3) lee y yield fila a fila
+        for i in range(total_items):
+            raw = self._read_row(i, len(headers))
+            obj = {header: raw[col_idx] for header, col_idx in zip(selected_headers, indices)}
+            yield obj
+
 
     def select(self, index: int, style: str = "select") -> bool:
         item = LVITEM()
@@ -237,6 +271,7 @@ class RemoteTreeView:
         return win32gui.SendMessage(self.hwnd, cc.TVM_GETNEXTITEM, cc.TVGN_NEXT, hitem)
 
     def get_item_text(self, hitem):
+        logger.debug(f"Getting item text for hItem: {hitem}")
         item = TVITEMEX()
         item.mask = cc.TVIF_TEXT
         item.hItem = hitem
@@ -246,7 +281,9 @@ class RemoteTreeView:
             self.temp, ctypes.string_at(ctypes.byref(item), self.ITEM_SIZE)
         )
         win32gui.SendMessage(self.hwnd, cc.TVM_GETITEMW, 0, self.temp)
-        return self.process.read_utf16z(self.buffer, self.BUFFER_SIZE)
+        text = self.process.read_utf16z(self.buffer, self.BUFFER_SIZE)
+        logger.debug(f"Item text: {text}")
+        return text
 
     def walk_roots(self):
         hitem = self.get_root_item()

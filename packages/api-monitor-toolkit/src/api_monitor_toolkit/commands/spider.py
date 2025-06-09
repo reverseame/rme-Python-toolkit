@@ -1,7 +1,7 @@
 import re
 import time
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Optional, Callable, Annotated
 
 import commctrl as cc
 import typer
@@ -31,140 +31,135 @@ logger = get_logger(__name__)
 app = typer.Typer()
 
 
-def extract_metadata(tree_node_text: str) -> dict:
+def extract_metadata(node_text: str) -> Optional[dict]:
     """
-    Extracts path, filename and PID from the root TreeView node text.
+    Extract the executable path and PID from a tree node label.
+    Return metadata dict or None if parsing fails.
     """
-    match = re.match(r"(.+?)\s+-\s+PID:\s+(\d+)\s+-\s+\(.+?\)", tree_node_text)
+    match = re.match(r"(.+?)\s+-\s+PID:\s+(\d+)", node_text)
     if not match:
-        logger.warning(
-            f"Failed to parse metadata from tree node text: {tree_node_text}"
-        )
-        return {}
-
-    full_path, pid = match.groups()
-    return {"path": full_path, "filename": Path(full_path).name, "pid": int(pid)}
+        logger.warning(f"Skipping node with invalid metadata: {node_text}")
+        return None
+    executable, pid = match.groups()
+    return {"path": executable, "filename": Path(executable).name, "pid": int(pid)}
 
 
-def process_summary_for_node(
-    main_window: int,
+def process_summary(
+    main_hwnd: int,
     transformer: ValueTransformer,
     include_params: bool,
     include_stack: bool,
-) -> list[dict]:
+    metadata: dict,
+    write: Callable[[dict], None],
+) -> None:
     """
-    Locates and processes summary entries for the currently selected TreeView node.
+    Stream summary entries for the selected node and write each entry.
     """
     try:
-        summary_window = find_child_windows(
-            main_window, lambda hwnd: "Summary" in win32gui.GetWindowText(hwnd)
+        summary_hwnd = find_child_windows(
+            main_hwnd, lambda h: "Summary" in win32gui.GetWindowText(h)
         )[0]
-        header_summary = find_control(
-            summary_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysHeader32"
+        header_hwnd = find_control(
+            summary_hwnd, lambda h: win32gui.GetClassName(h) == "SysHeader32"
         )
-        list_summary = find_control(
-            summary_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysListView32"
+        list_hwnd = find_control(
+            summary_hwnd, lambda h: win32gui.GetClassName(h) == "SysListView32"
         )
     except (ChildControlsNotFound, IndexError):
-        logger.warning("No summary controls found for current node.")
-        return []
+        logger.warning(f"Summary panel not found for PID={metadata['pid']}")
+        return
 
-    results = []
+    # Wait briefly for the list view to populate
+    for attempt in range(5):
+        total = win32gui.SendMessage(list_hwnd, cc.LVM_GETITEMCOUNT, 0, 0)
+        if total > 0:
+            break
+        time.sleep(0.2)
+    else:
+        logger.warning(f"No summary entries loaded for PID={metadata['pid']}")
+        return
 
-    with RemoteListView(header_summary, list_summary) as summary_view:
-        summary_rows = summary_view.as_json()
+    with RemoteListView(header_hwnd, list_hwnd) as view:
+        headers = view.get_columns()
+        indices, names = view._select_columns(headers, None)
+        logger.info(f"Found {total} summary entries for {metadata['filename']} (PID={metadata['pid']})")
 
-        for idx, row in enumerate(summary_rows):
-            entry = {
-                (mapped := SUMMARY_MAPPING.get(k, k)): transformer.transform(mapped, v)
-                for k, v in row.items()
-            }
-
-            if include_params or include_stack:
-                summary_view.select(idx)
-
+        for idx in range(total):
+            row = view._read_row(idx, len(headers))
+            entry = {names[j]: transformer.transform(names[j], row[col])
+                     for j, col in enumerate(indices)}
             if include_params:
+                view.select(idx)
                 entry["parameters"] = get_mapped_data(
-                    main_window,
-                    "Parameters",
-                    PARAMS_MAPPING,
-                    transformer,
-                    skip_penultimate_empty=True,
+                    main_hwnd, "Parameters", PARAMS_MAPPING,
+                    transformer, skip_penultimate_empty=True
                 )
-
             if include_stack:
+                view.select(idx)
                 entry["call_stack"] = get_mapped_data(
-                    main_window, "Call Stack", CALLSTACK_MAPPING, transformer
+                    main_hwnd, "Call Stack", CALLSTACK_MAPPING, transformer
                 )
-
-            results.append(entry)
-
-    return results
+            entry["metadata"] = metadata
+            write(entry)
 
 
 @app.command()
 def spider(
-    parameters: Annotated[
-        Optional[bool],
-        typer.Option("-p", "--parameters", help="Include Parameters section"),
-    ] = False,
-    call_stack: Annotated[
-        Optional[bool],
-        typer.Option("-c", "--call-stack", help="Include Call Stack section"),
-    ] = False,
-    output: Annotated[
-        Optional[str],
-        typer.Option(
-            "-o", "--output", help="Output destination: file path or HTTP URL"
-        ),
-    ] = None,
-    verbosity: Annotated[
-        int,
-        typer.Option(
-            "-v",
-            "--verbose",
-            count=True,
-            callback=verbose_callback,
-            help="Increase output verbosity (use multiple times)",
-        ),
-    ] = 0,
+    parameters: Annotated[Optional[bool], typer.Option("-p", "--parameters")]=False,
+    call_stack: Annotated[Optional[bool], typer.Option("-c", "--call-stack")]=False,
+    output: Annotated[Optional[str], typer.Option("-o", "--output")]=None,
+    verbosity: Annotated[int, typer.Option("-v", count=True, callback=verbose_callback)]=0,
 ) -> None:
+    logger.info("Starting API Monitor spider")
+    handler = None
     try:
         transformer = ValueTransformer()
-        output_handler = choose_output_handler(output)
-        output_handler.start()
+        handler = choose_output_handler(output)
+        # define write callback that flushes immediately if possible
+        def write_and_flush(entry: dict):
+            handler.write(entry)
+            try:
+                handler.file.flush()
+            except Exception:
+                pass
+        write_callback = write_and_flush
 
-        main_window = find_main_window(lambda title: "API Monitor v2" in title)
-        treeview_hwnd = find_control(
-            main_window, lambda hwnd: win32gui.GetClassName(hwnd) == "SysTreeView32"
+        logger.info(f"Output handler: {handler.__class__.__name__}")
+        handler.start()
+
+        main_hwnd = find_main_window(lambda t: "API Monitor v2" in t)
+        tree_hwnd = find_control(
+            main_hwnd, lambda h: win32gui.GetClassName(h) == "SysTreeView32"
         )
 
-        with RemoteTreeView(treeview_hwnd) as tree:
-            for node_text, node_handle in tree.walk_roots():
-                logger.info(f"Processing tree node: {node_text}")
+        with RemoteTreeView(tree_hwnd) as tree:
+            for node_text, node_hwnd in tree.walk_roots():
+                logger.info(f"Processing node: {node_text}")
                 metadata = extract_metadata(node_text)
+                if not metadata:
+                    continue
 
-                # Select the node in the TreeView UI
+                # select node and trigger summary load
                 win32gui.SendMessage(
-                    treeview_hwnd, cc.TVM_SELECTITEM, cc.TVGN_CARET, node_handle
+                    tree_hwnd, cc.TVM_SELECTITEM, cc.TVGN_CARET, node_hwnd
                 )
-                win32gui.PostMessage(treeview_hwnd, wc.WM_KEYDOWN, wc.VK_RETURN, 0)
-                time.sleep(0.1)  # Give UI time to update
+                win32gui.PostMessage(tree_hwnd, wc.WM_KEYDOWN, wc.VK_RETURN, 0)
+                time.sleep(0.1)
 
-                # Process summary rows for this node
-                entries = process_summary_for_node(
-                    main_window, transformer, parameters, call_stack
+                process_summary(
+                    main_hwnd,
+                    transformer,
+                    parameters,
+                    call_stack,
+                    metadata,
+                    write_callback,
                 )
 
-                for entry in entries:
-                    entry["metadata"] = metadata
-                    output_handler.write(entry)
-
-        output_handler.finish()
-
+        logger.info("Spider completed successfully")
     except MainWindowNotFound:
-        logger.error(
-            "Failed to locate the main application window. Is API Monitor running?"
-        )
-    except ChildControlsNotFound:
-        logger.warning("No TreeView control found in the target window.")
+        logger.error("API Monitor main window not found; ensure it's running")
+    except Exception as exc:
+        logger.exception(f"Spider failed: {exc}")
+    finally:
+        if handler:
+            handler.finish()
