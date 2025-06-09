@@ -17,7 +17,7 @@ import win32con
 import win32gui
 from api_monitor_toolkit.core.discovery import MainWindowNotFound, find_main_window
 from common.callbacks import verbose_callback
-from api_monitor_toolkit.utils.helpers import copy_to_clipboard
+from api_monitor_toolkit.utils.clipboard import copy_to_clipboard
 from common.logger import get_logger
 
 logger = get_logger(__name__)

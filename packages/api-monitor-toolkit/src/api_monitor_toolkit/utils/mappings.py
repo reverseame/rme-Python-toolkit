@@ -1,3 +1,16 @@
+from enum import Enum
+
+class AttachMode(str, Enum):
+    """
+    Different methods to attach API Monitor to the target process.
+    """
+    STATIC_IMPORT = "static-import"
+    CONTEXT_SWITCH = "context-switch"
+    INTERNAL_DEBUGGER = "internal-debugger"
+    REMOTE_THREAD_EXTENDED = "remote-thread-extended"
+    REMOTE_THREAD_STANDARD = "remote-thread-standard"
+
+
 SUMMARY_MAPPING = {
     "#": "id",
     "Date & Time": "timestamp",

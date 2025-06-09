@@ -48,6 +48,12 @@ make run64 ARGS="spider -p -c -o output.json -v"
 make run32 ARGS="spider -p -c -o output.json -v"
 ```
 
+---
+
+```bash
+uv run api-monitor-toolkit analyzer -i "C:\Users\htoral\Desktop\beep_g++_O0_windows_x86.exe"
+```
+
 ## ✨ Features
 
 - Extracts detailed API call information from API Monitor.
