@@ -17,7 +17,7 @@ from api_monitor_toolkit.core.exceptions import (
     MainWindowNotFound,
 )
 from api_monitor_toolkit.core.remote import RemoteListView, RemoteTreeView
-from api_monitor_toolkit.utils.callbacks import verbose_callback
+from common.callbacks import verbose_callback
 from api_monitor_toolkit.utils.helpers import ValueTransformer, get_mapped_data
 from api_monitor_toolkit.utils.mappings import (
     CALLSTACK_MAPPING,

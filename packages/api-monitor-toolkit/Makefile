@@ -25,14 +25,12 @@ venv64:
 # Install the project in 32-bit venv
 install32: venv32
 	@echo "📦 Installing into .venv32..."
-	.venv32/Scripts/python.exe -m pip install --upgrade pip
-	.venv32/Scripts/python.exe -m pip install .
+	uv pip install --python .venv32/Scripts/python.exe .
 
 # Install the project in 64-bit venv
 install64: venv64
 	@echo "📦 Installing into .venv64..."
-	.venv64/Scripts/python.exe -m pip install --upgrade pip
-	.venv64/Scripts/python.exe -m pip install .
+	uv pip install --python .venv64/Scripts/python.exe .
 
 # Run CLI using 32-bit venv
 run32:
