@@ -11,7 +11,7 @@ import psutil
 from ioc_extractor.engine.executor import execute_rule
 from ioc_extractor.utils.formatter import print_match
 from ioc_extractor.utils.io import file_sha256, read_json_chunks
-from ioc_extractor.utils.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 

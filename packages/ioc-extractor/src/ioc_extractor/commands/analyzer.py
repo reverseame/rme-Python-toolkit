@@ -5,8 +5,8 @@ from typing import Annotated, Optional
 import typer
 from ioc_extractor.rules.rule_loader import load_query_rules
 from ioc_extractor.utils.autotune import auto_tune_resources
-from ioc_extractor.utils.callbacks import verbose_callback
-from ioc_extractor.utils.logger import get_logger
+from common.callbacks import verbose_callback
+from common.logger import get_logger
 from ioc_extractor.utils.pipeline_executor import compute_chunk_size, run_pipeline
 from ioc_extractor.utils.resource_monitor import with_resource_monitoring
 

@@ -6,7 +6,7 @@ from typing import Any, Callable
 
 import humanfriendly
 import psutil
-from ioc_extractor.utils.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 

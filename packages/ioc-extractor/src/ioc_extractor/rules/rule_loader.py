@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import yaml
-from ioc_extractor.utils.logger import get_logger
+from common.logger import get_logger
 
 logger = get_logger(__name__)
 
