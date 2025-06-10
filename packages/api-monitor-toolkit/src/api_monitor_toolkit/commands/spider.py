@@ -1,5 +1,4 @@
-from typing import Annotated, Optional
-
+from typing import Annotated
 import typer
 
 from api_monitor_toolkit.services.spider_controller import SpiderController
@@ -13,10 +12,19 @@ app = typer.Typer()
 
 @app.command()
 def spider(
-    parameters: Annotated[Optional[bool], typer.Option("-p", "--parameters")] = False,
-    call_stack: Annotated[Optional[bool], typer.Option("-c", "--call-stack")] = False,
-    output: Annotated[Optional[str], typer.Option("-o", "--output")] = None,
-    verbosity: Annotated[int, typer.Option("-v", "--verbose", count=True, callback=verbose_callback)] = 0,
+    parameters: Annotated[bool, typer.Option("-p", "--parameters")] = False,
+    call_stack: Annotated[bool, typer.Option("-c", "--call-stack")] = False,
+    output: Annotated[str, typer.Option("-o", "--output")] = None,
+    verbosity: Annotated[
+        int,
+        typer.Option(
+            "-v",
+            "--verbose",
+            count=True,
+            callback=verbose_callback,
+            help="Increase logging verbosity",
+        ),
+    ] = 0,
 ):
     """
     Extract information from API Monitor's UI tree view (previously captured trace).
