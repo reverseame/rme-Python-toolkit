@@ -46,5 +46,7 @@ ignore = ["E501", "F401"]
 [tool.uv.workspace]
 members = [
     "packages/malware-downloader",
+    "packages/api-monitor-toolkit",
     "packages/ioc-extractor",
+    "packages/common",
 ]
