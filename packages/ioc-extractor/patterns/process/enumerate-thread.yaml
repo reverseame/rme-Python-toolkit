@@ -1,0 +1,18 @@
+meta:
+  name: enumerate_threads
+  description: Detects enumeration of threads, a behavior used by malware for analysis, discovery of injection targets, or anti-debugging.
+  categories:
+    - process
+  tags:
+    - thread
+    - enumeration
+    - discovery
+    - injection
+    - anti-debug
+  mbcs:
+    - C0064 # Enumerate Threads
+  att&ck:
+    - T1057 # Process Discovery
+  authors:
+    - reverseame
+  version: "1.0"

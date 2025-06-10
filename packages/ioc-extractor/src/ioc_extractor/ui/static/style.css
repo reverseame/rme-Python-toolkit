@@ -1,0 +1,79 @@
+/* === Layout === */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#graph-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* === Shared node styles === */
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+  cursor: pointer;
+}
+
+/* === Node type-specific colors === */
+.node-root {
+  fill: #e53e3e;
+}
+
+.node-category {
+  fill: #dd6b20;
+}
+
+.node-rule_group {
+  fill: #3182ce;
+}
+
+.node-rule_variant {
+  fill: #805ad5;
+}
+
+.node-api {
+  fill: #38a169;
+}
+
+.node-api_detail {
+  fill: #4fd1c5;
+}
+
+/* === Links between nodes === */
+.link {
+  stroke: #cbd5e0;
+  stroke-opacity: 0.6;
+}
+
+/* === Labels for nodes === */
+.nodelabel {
+  font-size: 14px;
+  fill: #2d3748;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+/* === Tooltip styling === */
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  max-width: 300px;
+  white-space: pre-wrap;
+  z-index: 10;
+}
+
+.hidden {
+  display: none;
+}

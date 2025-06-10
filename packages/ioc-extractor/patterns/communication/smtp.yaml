@@ -1,0 +1,19 @@
+meta:
+  name: smtp_communication
+  description: Detects communication over SMTP protocol, typically used by malware to send exfiltrated data or for spam propagation.
+  categories:
+    - network
+  tags:
+    - smtp
+    - communication
+    - exfiltration
+    - email
+  mbcs:
+    - C0012 # Malware communicates using SMTP
+    - C0012.001 # Server Connect
+    - C0012.002 # Request
+  att&ck:
+    - T1071.003 # Application Layer Protocol: Mail Protocols
+  authors:
+    - reverseame
+  version: "1.0"

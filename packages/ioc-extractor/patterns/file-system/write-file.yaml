@@ -1,0 +1,52 @@
+meta:
+  name: write_file
+  description: Detects behavior where a file is written to disk on Windows systems using common Windows, C runtime, or .NET APIs.
+  categories:
+    - filesystem
+  tags:
+    - filesystem
+    - file-write
+    - mbc
+  mbcs:
+    - C0052 # Malware writes a file.
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+  - where:
+      regex: ["api", "(?i)^(Nt|Zw)?(Create|Open)File"]
+  - where:
+      regex: ["api", "(?i)^WriteFile$"]
+  - where:
+      regex: ["api", "(?i)^WriteFileEx$"]
+  - where:
+      regex: ["api", "(?i)^NtWriteFile$"]
+  - where:
+      regex: ["api", "(?i)^ZwWriteFile$"]
+  - where:
+      regex: ["api", "(?i)^_fwrite$"]
+  - where:
+      regex: ["api", "(?i)^fwrite$"]
+  - where:
+      regex: ["api", "(?i)^WriteAllBytes$"]
+  - where:
+      regex: ["api", "(?i)^WriteAllBytesAsync$"]
+  - where:
+      regex: ["api", "(?i)^WriteAllLines$"]
+  - where:
+      regex: ["api", "(?i)^WriteAllLinesAsync$"]
+  - where:
+      regex: ["api", "(?i)^WriteAllText$"]
+  - where:
+      regex: ["api", "(?i)^WriteAllTextAsync$"]
+  - where:
+      regex: ["api", "(?i)^AppendAllLines$"]
+  - where:
+      regex: ["api", "(?i)^AppendAllLinesAsync$"]
+  - where:
+      regex: ["api", "(?i)^AppendAllText$"]
+  - where:
+      regex: ["api", "(?i)^AppendAllTextAsync$"]
+  - where:
+      regex: ["api", "(?i)^AppendText$"]

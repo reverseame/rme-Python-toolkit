@@ -1,0 +1,77 @@
+meta:
+  name: # (required) Unique name for the rule. Used for display, tracking, and output.
+  description: # (required) High-level summary of the behavior or technique being detected.
+  categories:
+    -  # (optional) High-level groupings like: process, file, network, registry, etc.
+  tags:
+    -  # (optional) Arbitrary tags to support filtering, organization or labeling. Examples: evasion, discovery
+  mbcs:
+    -  # (optional) MBC (Malware Behavior Catalog) codes. Example: C0036.004
+  att&ck:
+    -  # (optional) MITRE ATT&CK technique IDs. Example: T1112
+  authors:
+    - reverseame # (recommended) List of authors or contributors
+  version: "1.0" # (recommended) Version of the rule definition
+
+variants:
+  - name: # (optional) A name to identify this variant. Useful if multiple patterns belong to the same rule.
+    description: # (optional) Specific description of this variant's purpose or detection logic.
+
+    # The following fields can be used to override or extend metadata from `meta`.
+    # Values are merged with the global `meta`, unless you redefine them fully here.
+    categories:
+      -  # (optional) Add or override category tags specific to this variant
+    tags:
+      -  # (optional) Add or override tags specific to this variant
+    mbcs:
+      -  # (optional) Add or override MBC codes specific to this variant
+    att&ck:
+      -  # (optional) Add or override MITRE ATT&CK codes specific to this variant
+
+    select:
+      # Extract fields from the input event using JMESPath expressions.
+      # Each field can include an alias (rename) and optional transformations.
+      # These are used for output and analysis, but not for condition matching.
+
+      - field: parameters[?name=='SomeParameter'].post_value # (JMESPath) Path to extract the value from
+        alias: normalized_param # (optional) New name used in results
+        transform:
+          - lower # Convert to lowercase
+          - strip # Remove leading/trailing whitespace
+          - split: ["\\", -1] # Split by backslash and take last part
+          - regex_sub: # Apply a regex replacement
+              pattern: '\.exe$'
+              repl: ""
+
+      - field: module # (example) Direct top-level field (e.g., 'bcryptprimitives.dll')
+        alias: source_module
+        transform:
+          - regex_sub: { pattern: '\.dll$', repl: "" } # Remove ".dll" suffix
+
+      - field: call_stack[0].location # (example) Accessing nested stack trace info
+        alias: first_stack_frame
+        transform:
+          - regex_extract:
+              pattern: "\\+\\s(0x[0-9a-fA-F]+)" # Extract offset like "0x8e1" from " + 0x8e1"
+              group: 1
+
+    where:
+      # Conditions that must match for the rule to trigger.
+      # Supports nested logical expressions using:
+      # - and: [condition1, condition2, ...]
+      # - or:  [condition1, condition2, ...]
+      # - not: condition
+      #
+      # Operators include:
+      # - eq, regex, contains, startswith, endswith, in, not_in
+      # - gt, gte, lt, lte
+      #
+      # NOTE: Conditions reference the original event fields, not the `select` aliases.
+
+      and:
+        - regex: ["api", "(?i)^Nt(Query|Set)Information(Process|Thread)"] # Case-insensitive API match
+        - eq: ["status", "success"] # Must be an exact match
+        - not:
+            contains: ["command_line", "debugger"] # Negate if the command line contains "debugger"
+        - in: ["module", ["ntdll.dll", "kernel32.dll"]] # The module must be one of these
+        - gt: ["duration", 0.01] # Duration greater than 0.01 (numeric comparison)

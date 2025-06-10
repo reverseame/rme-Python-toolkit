@@ -1,0 +1,35 @@
+meta:
+  name: # Rule name (e.g., Suspicious API Call)
+  description: # Short description of what the rule detects
+  categories:
+    - cryptography
+  tags:
+    - cryptography
+    - CSPRNG
+  mbcs:
+    - C0059.001
+    - C0021.003  # Malware is using cryptographically secure pseudo random data
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+# CRYPTOAPI: GENERATE CRYPTOGRAPHICALLY SECURE RANDOM DATA
+  - select:
+      - field: parameters[?name=='pbBuffer'].pre_value
+        alias: "Buffer"
+      - field: parameters[?name=='dwLen'].pre_value
+        alias: "Data length"
+    where:
+      or:
+        - startswith: ["api", "CryptGenRandom"]
+        - startswith: ["api", "CPGenRandom"]
+
+# CNG: GENERATE CRYPTOGRAPHICALLY SECURE RANDOM DATA
+  - select:
+      - field: parameters[?name=='pbBuffer'].pre_value
+        alias: "Buffer"
+      - field: parameters[?name=='dwLen'].pre_value
+        alias: "Data length"
+    where:
+      startswith: ["api", "BCryptGenRandom"]

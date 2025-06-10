@@ -16,7 +16,7 @@ repos:
       - id: mixed-line-ending
         args: [--fix=lf] # Enforces Unix-style LF endings
       - id: check-added-large-files
-        args: ["--maxkb=500"] # Blocks files >500 KB
+        args: ["--maxkb=1500"] # Blocks files >1500 KB
       - id: detect-private-key # Prevents committing private keys
       - id: debug-statements # Catches print() and breakpoint()
       - id: check-yaml # Verifies valid YAML syntax

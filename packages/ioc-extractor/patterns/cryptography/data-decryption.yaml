@@ -1,0 +1,57 @@
+meta:
+  name: data_decryption
+  description: Detects decryption operations using CNG and CryptoAPI
+  categories:
+    - cryptography
+  tags:
+    - cryptography
+    - data-decryption
+  mbcs:
+    - C0059.001
+    - C0031
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+# CRYPTOAPI: DECRYPT DATA USING A CRYPTOAPI GENERATED KEY
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Key handle"
+        transform:
+          - regex: '0x[0-9a-fA-F]+\s*=\s*(0x[0-9a-fA-F]+)'
+      - field: parameters[?name=='hHash'].pre_value
+        alias: "Hash handle"
+      - field: parameters[?name=='Final'].pre_value
+        alias: "Final block (bool)"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+      - field: parameters[?name=='pbData'].pre_value
+        alias: "Data buffer"
+      - field: parameters[?name=='pdwDataLen'].pre_value
+        alias: "Data length"
+    where:
+      or:
+        - startswith: ["api", "CryptDecrypt"]
+        - startswith: ["api", "CPDecrypt"]
+
+# CNG: DECRYPT DATA USING A CRYPTOAPI GENERATED KEY
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Key handle"
+      - field: parameters[?name=='pbInput'].pre_value
+        alias: "Input ciphertext"
+      - field: parameters[?name=='cbInput'].pre_value
+        alias: "Ciphertext length"
+      - field: parameters[?name=='pbIV'].pre_value
+        alias: "Initialization vector (ptr)"
+      - field: parameters[?name=='cbIV'].pre_value
+        alias: "IV size"
+      - field: parameters[?name=='pbOutput'].pre_value
+        alias: "Resulting plaintext"
+      - field: parameters[?name=='pcbResult'].post_value
+        alias: "Plaintext length"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      startswith: ["api", "BCryptDecrypt"]

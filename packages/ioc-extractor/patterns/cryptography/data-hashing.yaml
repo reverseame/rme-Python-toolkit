@@ -1,0 +1,67 @@
+meta:
+  name: # Rule name (e.g., Suspicious API Call)
+  description: # Short description of what the rule detects
+  categories:
+    - cryptography
+  tags:
+    - cryptography
+    - data-hashing
+  mbcs:
+    - C0059.001
+    - C0029
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+  # CRYPTOAPI: HASH DATA
+  - select:
+      - field: parameters[?name=='hHash'].pre_value
+        alias: "Hash handle"
+      - field: parameters[?name=='pbData'].pre_value
+        alias: "Input data"
+      - field: parameters[?name=='dwDataLen'].pre_value
+        alias: "Data length"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      or:
+        - startswith: ["api", "CryptHashData"]
+        - startswith: ["api", "CPHashData"]
+
+# CRYPTOAPI: GET THE RESULTING HASH
+  - select:
+      - field: parameters[?name=='hHash'].pre_value
+        alias: "Hash handle"
+      - field: parameters[?name=='pbData'].pre_value
+        alias: "Output buffer"
+      - field: parameters[?name=='pdwDataLen'].post_value
+        alias: "Data length"
+    where:
+      and:
+        - or:
+          - startswith: ["api", "CryptGetHashParam"]
+          - startswith: ["api", "CPGetHashParam"]
+        - eq: ["parameters[?name=='hHash'].pre_value", "HP_HASHVAL"]  # TODO: check if it works
+
+# CNG: HASH DATA
+  - select:
+      - field: parameters[?name=='hHash'].pre_value
+        alias: "Hash handle"
+      - field: parameters[?name=='pbInput'].pre_value
+        alias: "Input data"
+      - field: parameters[?name=='cbInput'].pre_value
+        alias: "Data length"
+    where:
+      startswith: ["api", "BCryptHashData"]
+
+# CNG: GET THE RESULTING HASH
+  - select:
+      - field: parameters[?name=='hHash'].pre_value
+        alias: "Hash handle"
+      - field: parameters[?name=='pbOutput'].pre_value
+        alias: "Output buffer"
+      - field: parameters[?name=='cbOutput'].pre_value
+        alias: "Buffer length"
+    where:
+      startswith: ["api", "BCryptFinishHash"]

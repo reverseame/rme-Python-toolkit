@@ -1,0 +1,19 @@
+meta:
+  name: persist_via_run_registry_key
+  description: Detects the use of Run and similar registry keys to establish persistence by executing code at system startup or user logon.
+  categories:
+    - persistence
+    - registry
+  tags:
+    - registry
+    - run-key
+    - autorun
+    - startup
+    - persistence
+  mbcs:
+    - F0012 # Registry Run Keys / Startup Folder
+  att&ck:
+    - T1547.001 # Registry Run Keys/Startup Folder
+  authors:
+    - reverseame
+  version: "1.0"

@@ -1,0 +1,19 @@
+meta:
+  name: resume_thread
+  description: Detects resuming of a suspended thread, a common step in process hollowing and thread injection techniques.
+  categories:
+    - process
+  tags:
+    - thread
+    - resume
+    - injection
+    - hollowing
+    - execution
+  mbcs:
+    - C0054 # Resume Thread
+  att&ck:
+    - T1055.003 # Process Injection: Thread Execution Hijacking
+    - T1055.012 # Process Hollowing
+  authors:
+    - reverseame
+  version: "1.0"

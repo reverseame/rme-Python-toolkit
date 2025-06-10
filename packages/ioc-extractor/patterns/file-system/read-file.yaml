@@ -1,0 +1,43 @@
+meta:
+  name: read_file
+  description: Detects behavior where a file is read from disk on Windows systems using common Windows or C runtime APIs.
+  categories:
+    - filesystem
+  tags:
+    - filesystem
+    - file-read
+  mbcs:
+    - C0051 # Malware reads a file.
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+  - where:
+      regex: ["api", "(?i)^ReadFile"]
+  - where:
+      regex: ["api", "(?i)^ReadFileEx"]
+  - where:
+      regex: ["api", "(?i)^NtReadFile"]
+  - where:
+      regex: ["api", "(?i)^ZwReadFile"]
+  - where:
+      regex: ["api", "(?i)^LZRead"]
+  - where:
+      regex: ["api", "(?i)^_read"]
+  - where:
+      regex: ["api", "(?i)^fread"]
+  - where:
+      regex: ["api", "(?i)^ReadAllBytes"]
+  - where:
+      regex: ["api", "(?i)^ReadAllBytesAsync"]
+  - where:
+      regex: ["api", "(?i)^ReadAllLines"]
+  - where:
+      regex: ["api", "(?i)^ReadAllLinesAsync"]
+  - where:
+      regex: ["api", "(?i)^ReadAllText"]
+  - where:
+      regex: ["api", "(?i)^ReadAllTextAsync"]
+  - where:
+      regex: ["api", "(?i)^ReadLines"]

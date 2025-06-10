@@ -1,0 +1,36 @@
+meta:
+  name: socket_communication
+  description: Detects low-level socket communication used by malware to establish network connections, send and receive data using TCP or UDP.
+  categories:
+    - network
+  tags:
+    - socket
+    - tcp
+    - udp
+    - communication
+    - c2
+  mbcs:
+    - C0001 # General socket communication
+    - C0001.001 # Set Socket Config
+    - C0001.003 # Create Socket
+    - C0001.004 # Connect Socket
+    - C0001.005 # Start TCP Server
+    - C0001.006 # Receive Data
+    - C0001.007 # Send Data
+    - C0001.009 # Initialize Winsock Library
+    - C0001.010 # Create UDP Socket
+    - C0001.011 # Create TCP Socket
+    - C0001.012 # Get Socket Status
+    - C0001.014 # Send TCP Data
+    - C0001.015 # Send UDP Data
+    - C0001.016 # Receive TCP Data
+    - C0001.017 # Receive UDP Data
+    - C0001.002 # TCP Server
+    - C0001.008 # TCP Client
+    - C0001.013 # UDP Client
+  att&ck:
+    - T1071 # Application Layer Protocol
+    - T1095 # Non-Application Layer Protocol
+  authors:
+    - reverseame
+  version: "1.0"

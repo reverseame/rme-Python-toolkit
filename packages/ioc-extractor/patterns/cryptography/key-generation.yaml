@@ -1,0 +1,172 @@
+meta:
+  name: generate_cryptographic_key
+  description: Detects the generation of a cryptographic key using system APIs (CryptoAPI, CNG)
+  categories:
+    - cryptography
+  tags:
+    - cryptography
+    - key-generation
+  mbcs:
+    - C0059.001
+    - C0068
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+# CRYPTOAPI: GENERATE A SECURE KEY (ANY ALGORITHM AND PROVIDER)
+  - select:
+      - field: parameters[?name=='phKey'].post_value
+        alias: "Key handle"
+        transform:
+          - regex: '0x[0-9a-fA-F]+\s*=\s*(0x[0-9a-fA-F]+)'
+      - field: parameters[?name=='Algid'].pre_value
+        alias: "ALG_ID"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+        or:
+          - startswith: ["api", "CryptGenKey"]
+          - startswith: ["api", "CPGenKey"]
+
+  # CNG: GENERATE AN (ASYMMETRIC) KEY PAIR
+  - select:
+      - field: parameters[?name=='phKey'].post_value
+        alias: "Key handle"
+      - field: parameters[?name=='hAlgorithm'].pre_value
+        alias: "ALG_ID"
+      - field: parameters[?name=='dwLength'].pre_value
+        alias: "Key length"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      and:
+        - startswith: ["api", "BCryptGenerateKeyPair"]
+        - not:
+            or: # FILTERS THE CALLS PERFORMED BY SECOND LEVEL APIS
+              - contains: [ "module", "rsaenh.dll" ]
+              - contains: [ "module", "dssenh.dll" ]
+              - contains: [ "module", "basecsp.dll" ]
+
+# CNG: GENERATE A SYMMETRIC KEY
+  - select:
+      - field: parameters[?name=='phKey'].post_value
+        alias: "Key handle"
+        transform:
+          - regex: '0x[0-9a-fA-F]+\s*=\s*(0x[0-9a-fA-F]+)'
+      - field: parameters[?name=='hAlgorithm'].pre_value
+        alias: "ALG_ID"
+      - field: parameters[?name=='cbSecret'].pre_value
+        alias: "Key length"
+      - field: parameters[?name=='pbSecret'].pre_value
+        alias: "Pointer to the raw key material"
+        transform:
+          - regex: '(0x[0-9a-fA-F]{8,16})\s*='
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      and:
+        - startswith: ["api", "BCryptGenerateSymmetricKey"]
+        - not:
+            or:  # FILTERS THE CALLS PERFORMED BY SECOND LEVEL APIS
+              - contains: ["module", "rsaenh.dll"]
+              - contains: [ "module", "dssenh.dll" ]
+              - contains: ["module", "basecsp.dll"]
+
+# CRYPTOAPI: DERIVE A KEY (FROM A HASH)
+  - select:
+      - field: parameters[?name=='phKey'].post_value
+        alias: "Key handle"
+      - field: parameters[?name=='Algid'].pre_value
+        alias: "ALG_ID"
+      - field: parameters[?name=='dwFlags'].pre_value
+        alias: "Flags"
+      - field: parameters[?name=='hBaseData'].pre_value
+        alias: "Base data handle"
+
+    where:
+      or:
+        - startswith: [ "api", "CryptDeriveKey" ]
+        - startswith: [ "api", "CPDeriveKey" ]
+
+# CNG: DERIVE A KEY FROM A HANDLE TO A SECRET
+  - select:
+      - field: parameters[?name=='hSharedSecret'].pre_value
+        alias: "Handle to the original secret"
+      - field: parameter[?name=='pwszKDF'].pre_value
+        alias: "Key Derivation Function"
+      - field: parameter[?name=='pbDerivedKey'].post_value
+        alias: "Derived key"
+      - field: parameter[?name=='cbDerivedKey'].post_value
+        alias: "Key size"
+      - field: parameter[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      and:
+        - startswith: ["api", "BCryptDeriveKey"]
+        - not:
+            or:
+              - contains: ["module", "rsaenh.dll"]
+              - contains: [ "module", "dssenh.dll" ]
+              - contains: ["module", "basecsp.dll"]
+
+# CNG: DERIVE A KEY FROM ANOTHER ONE (ADAPTS ONE KEY FORMAT TO ANOTHER ALGORITHM)
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Handle to the original key"
+      - field: parameter[?name=='pbDerivedKey'].post_value
+        alias: "Derived key buffer"
+      - field: parameter[?name=='cbDerivedKey'].pre_value
+        alias: "Desired key size"
+      - field: parameter[?name=='pcbResult'].post_value
+        alias: "Actual key size"
+      - field: parameter[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      and:
+        - startswith: ["api", "BCryptKeyDerivation"]
+        - not:
+            or:
+              - contains: ["module", "rsaenh.dll"]
+              - contains: [ "module", "dssenh.dll" ]
+              - contains: ["module", "basecsp.dll"]
+
+# CNG: DERIVE A KEY FROM A CNG GENERATED HASH (BACKWARDS COMPATIBILITY)
+  - select:
+      - field: parameters[?name=='hKey'].pre_value
+        alias: "Handle to the original key"
+      - field: parameter[?name=='hTargetAlg'].pre_value
+        alias: "Target algorithm"
+      - field: parameter[?name=='pbDerivedKey'].post_value
+        alias: "Derived key buffer"
+      - field: parameter[?name=='cbDerivedKey'].pre_value
+        alias: "Key size"
+      - field: parameter[?name=='dwFlags'].pre_value
+        alias: "Flags"
+    where:
+      and:
+        - startswith: ["api", "BCryptDeriveKeyCapi"]
+        - not:
+            or:
+              - contains: ["module", "rsaenh.dll"]
+              - contains: [ "module", "dssenh.dll" ]
+              - contains: ["module", "basecsp.dll"]
+
+# CNG: DERIVE A KEY FROM A PASSWORD
+  - select:
+      - field: parameters[?name=='pbPassword'].pre_value
+        alias: "Buffer with the secret"
+      - field: parameter[?name=='cbPassword'].pre_value
+        alias: "Secret length"
+      - field: parameter[?name=='pbDerivedKey'].post_value
+        alias: "Derived key buffer"
+      - field: parameter[?name=='cbDerivedKey'].pre_value
+        alias: "Key size"
+    where:
+      and:
+        - startswith: ["api", "BCryptDeriveKeyPBKDF2"]
+        - not:
+            or:
+              - contains: ["module", "rsaenh.dll"]
+              - contains: [ "module", "dssenh.dll" ]
+              - contains: ["module", "basecsp.dll"]

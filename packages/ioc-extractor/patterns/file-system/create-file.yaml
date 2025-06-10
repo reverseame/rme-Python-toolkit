@@ -1,0 +1,52 @@
+meta:
+  name: create_or_open_file
+  description: Detects file creation or opening operations using low-level or C runtime APIs, including CreateFileA, fopen, open, and others.
+  categories:
+    - filesystem
+  tags:
+    - filesystem
+    - file-creation
+  mbcs:
+    - C0016 # File System::Create File
+    - C0016.001 # An Office document is created.
+    - C0016.002 # Create a file used by ransomware.
+  authors:
+    - reverseame
+  version: "1.0"
+
+variants:
+  - select:
+      - field: parameters[?name=='lpFileName'].post_value
+        alias: file_path
+        transform:
+          - split: [" ", -1, 1]
+      - field: parameters[?name=='dwDesiredAccess'].post_value
+        alias: access_flags
+      - field: parameters[?name=='dwCreationDisposition'].post_value
+        alias: creation_mode
+    where:
+      regex: ["api", "(?i)^CreateFile"]
+
+  - select:
+      - field: parameters[?name=='filename'].post_value
+        alias: file_path
+      - field: parameters[?name=='mode'].post_value
+        alias: file_mode
+    where:
+      regex: ["api", "(?i)^fopen"]
+
+  - select:
+      - field: parameters[?name=='filename'].post_value
+        alias: file_path
+      - field: parameters[?name=='oflag'].post_value
+        alias: open_flags
+      - field: parameters[?name=='pmode'].post_value
+        alias: permissions
+    where:
+      regex: ["api", "(?i)^_open"]
+
+  - where:
+      and:
+        - regex: ["api", "(?i)^(Nt|Zw)(Create|Open)File"]
+        - not:
+            regex: ["module", "(?i)^KERNELBASE.dll"]

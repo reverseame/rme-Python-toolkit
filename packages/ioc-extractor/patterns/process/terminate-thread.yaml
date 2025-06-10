@@ -1,0 +1,17 @@
+meta:
+  name: terminate_thread
+  description: Detects termination of a thread, which may be used by malware to disrupt execution, evade debugging, or manipulate flow control.
+  categories:
+    - process
+  tags:
+    - thread
+    - termination
+    - evasion
+    - control
+  mbcs:
+    - C0039 # Terminate Thread
+  att&ck:
+    - T1055.003 # Process Injection: Thread Execution Hijacking
+  authors:
+    - reverseame
+  version: "1.0"

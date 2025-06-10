@@ -1,0 +1,19 @@
+meta:
+  name: terminate_process
+  description: Detects the termination of a process, either self-termination or targeting another process, often used to evade detection or disable defenses.
+  categories:
+    - process
+  tags:
+    - termination
+    - kill
+    - evasion
+    - control
+    - remote-process
+  mbcs:
+    - C0018 # Terminate Process
+  att&ck:
+    - T1089 # Disabling Security Tools
+    - T1561.001 # Disk Wipe: Disk Content Wipe (if targeting security-related processes)
+  authors:
+    - reverseame
+  version: "1.0"

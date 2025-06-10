@@ -1,0 +1,35 @@
+meta:
+  name: http_communication
+  description: Detects communication over HTTP protocol, often used by malware for command-and-control, downloading payloads, or exfiltrating data.
+  categories:
+    - network
+  tags:
+    - http
+    - communication
+    - exfiltration
+    - c2
+  mbcs:
+    - C0002
+    - C0002.001 # General HTTP server behavior.
+    - C0002.002 # General HTTP client behavior.
+    - C0002.009 # HTTP client connects to HTTP server.
+    - C0002.004 # HTTP client connects to a URL.
+    - C0002.006 # HTTP client downloads URL to file.
+    - C0002.011 # HTTP client extracts HTTP body.
+    - C0002.012 # HTTP client creates request.
+    - C0002.003 # HTTP client sends request (GET).
+    - C0002.005 # HTTP clients sends data to a server (POST/PUT).
+    - C0002.015 # HTTP server receives request.
+    - C0002.016 # HTTP server sends response.
+    - C0002.017 # HTTP client receives response.
+    - C0002.018 # HTTP server is started.
+    - C0002.013 # HTTP header is set.
+    - C0002.014 # HTTP read header.
+    - C0002.010 # The IWebBrowser interface exposes methods and properties implemented by the WebBrowser control or implemented by an instance of the InternetExplorer application. Specific methods and properties can be captured: e.g., COMMUNICATION::HTTP Communication::IWebBrowser.get_Document.
+    - C0002.008 # An HTTP request is made via the Windows HTTP Services (WinHTTP) application programming interface (API).
+    - C0002.007 # A HTTP request is made via the Windows Internet (WinINet) application programming interface (API). A specific function can be specified as a method on the WinInet micro-behavior.
+  att&ck:
+    - T1071.001 # Application Layer Protocol: Web Protocols
+  authors:
+    - reverseame
+  version: "1.0"
