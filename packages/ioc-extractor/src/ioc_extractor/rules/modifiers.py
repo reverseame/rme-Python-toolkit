@@ -37,6 +37,7 @@ from ioc_extractor.rules.registry import get_transform, register_transform
 
 logger = logging.getLogger(__name__)
 
+
 def to_str(val: Any) -> str:
     """
     Converts any value (or first item of a list) to string for uniform modifier application.
@@ -44,6 +45,7 @@ def to_str(val: Any) -> str:
     if isinstance(val, list):
         return str(val[0]) if val else ""
     return str(val)
+
 
 def apply_modifiers(value: Any, modifiers: list[Any]) -> str:
     """
@@ -76,7 +78,10 @@ def apply_modifiers(value: Any, modifiers: list[Any]) -> str:
         logger.debug(f"Applied modifiers {modifiers} to '{original_value}' → '{value}'")
         return value
     except Exception as e:
-        logger.error(f"Error applying modifiers {modifiers} to value '{original_value}': {e}", exc_info=True)
+        logger.error(
+            f"Error applying modifiers {modifiers} to value '{original_value}': {e}",
+            exc_info=True,
+        )
         return original_value
 
 
@@ -84,21 +89,26 @@ def apply_modifiers(value: Any, modifiers: list[Any]) -> str:
 def transform_lower(val: Any) -> str:
     return to_str(val).lower()
 
+
 @register_transform("upper")
 def transform_upper(val: Any) -> str:
     return to_str(val).upper()
+
 
 @register_transform("strip")
 def transform_strip(val: Any) -> str:
     return to_str(val).strip()
 
+
 @register_transform("url_decode")
 def transform_url_decode(val: Any) -> str:
     return urllib.parse.unquote(to_str(val))
 
+
 @register_transform("replace")
 def transform_replace(val: Any, pattern: str, repl: str = "") -> str:
     return re.sub(pattern, repl, to_str(val))
+
 
 @register_transform("regex_extract")
 def transform_regex_extract(val: Any, pattern: str, group: int = 1) -> str:
@@ -110,12 +120,16 @@ def transform_regex_extract(val: Any, pattern: str, group: int = 1) -> str:
             return ""
     return ""
 
+
 @register_transform("regex_sub")
 def transform_regex_sub(val: Any, pattern: str, repl: str = "") -> str:
     return re.sub(pattern, repl, to_str(val))
 
+
 @register_transform("split")
-def transform_split(val: Any, delimiter: str = ",", idx: int = 0, maxsplit: int = -1) -> str:
+def transform_split(
+    val: Any, delimiter: str = ",", idx: int = 0, maxsplit: int = -1
+) -> str:
     parts = to_str(val).split(delimiter, maxsplit)
     return parts[idx].strip()
 

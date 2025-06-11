@@ -2,12 +2,11 @@ import ctypes
 import unicodedata
 from ctypes import wintypes
 
+import commctrl as cc
 import win32api
 import win32con as wc
 import win32gui
 import win32process
-import commctrl as cc
-
 from api_monitor_toolkit.core.exceptions import RemoteMemoryAccessError
 from common.logger import get_logger
 
@@ -40,13 +39,17 @@ class RemoteProcess:
 
     def read(self, addr: int, size: int) -> bytes:
         buffer = ctypes.create_string_buffer(size)
-        success = self._kernel32.ReadProcessMemory(self.handle, addr, buffer, size, None)
+        success = self._kernel32.ReadProcessMemory(
+            self.handle, addr, buffer, size, None
+        )
         if not success:
             raise RemoteMemoryAccessError(f"Failed to read memory at {hex(addr)}")
         return buffer.raw
 
     def write(self, addr: int, data: bytes):
-        success = self._kernel32.WriteProcessMemory(self.handle, addr, data, len(data), None)
+        success = self._kernel32.WriteProcessMemory(
+            self.handle, addr, data, len(data), None
+        )
         if not success:
             raise RemoteMemoryAccessError(f"Failed to write memory at {hex(addr)}")
 
@@ -122,7 +125,9 @@ class RemoteListView:
             item.mask = cc.HDI_TEXT
             item.pszText = ctypes.cast(self.buf, wintypes.LPWSTR)
             item.cchTextMax = self.BUF_SIZE // 2
-            self.proc.write(self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item)))
+            self.proc.write(
+                self.temp, ctypes.string_at(ctypes.byref(item), ctypes.sizeof(item))
+            )
             win32gui.SendMessage(self.header, cc.HDM_GETITEMW, i, self.temp)
             columns.append(self.proc.read_utf16z(self.buf, self.BUF_SIZE))
         return columns
@@ -136,7 +141,9 @@ class RemoteListView:
             item.iSubItem = col
             item.pszText = ctypes.cast(self.buf, wintypes.LPWSTR)
             item.cchTextMax = self.BUF_SIZE // 2
-            self.proc.write(self.temp, ctypes.string_at(ctypes.byref(item), self.ITEM_SIZE))
+            self.proc.write(
+                self.temp, ctypes.string_at(ctypes.byref(item), self.ITEM_SIZE)
+            )
             win32gui.SendMessage(self.list, cc.LVM_GETITEMTEXTW, index, self.temp)
             row.append(self.proc.read_utf16z(self.buf, self.BUF_SIZE))
         return row
@@ -148,7 +155,11 @@ class RemoteListView:
         if desired is None:
             return list(range(len(headers))), headers
         norm_map = {self._normalize(h): i for i, h in enumerate(headers)}
-        indices = [norm_map[self._normalize(h)] for h in desired if self._normalize(h) in norm_map]
+        indices = [
+            norm_map[self._normalize(h)]
+            for h in desired
+            if self._normalize(h) in norm_map
+        ]
         selected = [headers[i] for i in indices]
         return indices, selected
 
@@ -156,7 +167,9 @@ class RemoteListView:
         headers = self.get_columns()
         indices, _ = self._select_columns(headers, desired_columns)
         total = win32gui.SendMessage(self.list, cc.LVM_GETITEMCOUNT, 0, 0)
-        return [[self._read_row(i, len(headers))[j] for j in indices] for i in range(total)]
+        return [
+            [self._read_row(i, len(headers))[j] for j in indices] for i in range(total)
+        ]
 
     def as_json(self, desired_columns=None) -> list[dict[str, str]]:
         headers = self.get_columns()
@@ -172,7 +185,9 @@ class RemoteListView:
         item = LVITEM()
         item.stateMask = item.state = cc.LVIS_SELECTED | cc.LVIS_FOCUSED
         self.proc.write(self.temp, ctypes.string_at(ctypes.byref(item), self.ITEM_SIZE))
-        return bool(win32gui.SendMessage(self.list, cc.LVM_SETITEMSTATE, index, self.temp))
+        return bool(
+            win32gui.SendMessage(self.list, cc.LVM_SETITEMSTATE, index, self.temp)
+        )
 
 
 class TVITEMEX(ctypes.Structure):

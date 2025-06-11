@@ -11,7 +11,7 @@ def simulate_execution(
     sample: list[dict[str, Any]],
     chunk_size: int,
     rules: list[dict[str, Any]],
-    source_file: str
+    source_file: str,
 ) -> float:
     """Run all rules over the sample split into chunks. Returns elapsed time."""
     chunks = list(chunked(sample, chunk_size))
@@ -23,10 +23,7 @@ def simulate_execution(
     return time.perf_counter() - start
 
 
-def load_sample(
-    path: str,
-    limit: int = 20000
-) -> list[dict[str, Any]]:
+def load_sample(path: str, limit: int = 20000) -> list[dict[str, Any]]:
     """Load up to `limit` entries from a JSON file using ijson."""
     sample = []
     with open(path, encoding="latin-1") as f:

@@ -1,34 +1,34 @@
-from pathlib import Path
-from enum import Enum
 import shlex
 import shutil
 import subprocess
 import sys
 import time
-from typing import Annotated
 import zipfile
-import typer
+from enum import Enum
+from pathlib import Path
+from typing import Annotated
+
 import psutil
 import requests
+import typer
 import win32com.client
-
 from api_monitor_toolkit.core.monitor import (
-    wait_for_window,
-    set_foreground,
-    open_monitor_dialog,
     fill_monitor_form,
+    open_monitor_dialog,
+    set_foreground,
+    wait_for_window,
 )
 from api_monitor_toolkit.core.runner import (
-    launch_monitor,
-    detect_arch,
-    wait_for_process_start,
-    wait_for_process_exit_unbounded,
-    kill_target_processes,
     close_monitor,
+    detect_arch,
+    kill_target_processes,
+    launch_monitor,
+    wait_for_process_exit_unbounded,
+    wait_for_process_start,
 )
 from api_monitor_toolkit.utils.trace import (
-    save_apmx,
     get_results,
+    save_apmx,
     save_results,
 )
 from common.callbacks import verbose_callback
@@ -66,7 +66,9 @@ def analyzer(
     ] = Path(r"C:\\Program Files\\rohitab.com\\API Monitor"),
     timeout: Annotated[
         int,
-        typer.Option("-t", "--timeout", help="Seconds to wait for window & process start"),
+        typer.Option(
+            "-t", "--timeout", help="Seconds to wait for window & process start"
+        ),
     ] = 5,
     output: Annotated[
         str, typer.Option("-o", "--output", help="Output path (.zip or HTTP URL)")

@@ -1,13 +1,15 @@
-import zipfile
-import requests
 import shutil
 import sys
 import time
+import zipfile
 from pathlib import Path
+
+import requests
 from api_monitor_toolkit.core.monitor import bring_monitor_to_front, send_text
 from common.logger import get_logger
 
 logger = get_logger(__name__)
+
 
 def save_apmx(shell, path: Path, timeout: int):
     if not bring_monitor_to_front():
@@ -18,8 +20,10 @@ def save_apmx(shell, path: Path, timeout: int):
     shell.SendKeys("{ENTER}")
     time.sleep(timeout)
 
+
 def get_results(temp_dir: Path) -> list[Path]:
     return list(temp_dir.glob("*.apmx*"))
+
 
 def save_results(results: list[Path], output: str, temp: Path, base_name: str):
     if not results:

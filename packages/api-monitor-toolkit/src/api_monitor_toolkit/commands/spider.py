@@ -1,8 +1,8 @@
 from typing import Annotated
-import typer
 
-from api_monitor_toolkit.services.spider_controller import SpiderController
+import typer
 from api_monitor_toolkit.output.handler import get_output_handler
+from api_monitor_toolkit.services.spider_controller import SpiderController
 from common.callbacks import verbose_callback
 from common.logger import get_logger
 

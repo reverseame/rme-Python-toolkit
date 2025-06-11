@@ -8,6 +8,7 @@ from common.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def compile_where(where: Any) -> Any:
     """
     Recursively processes 'where' conditions, compiling regex patterns
@@ -33,6 +34,7 @@ def compile_where(where: Any) -> Any:
         return [compile_where(w) for w in where]
     return where
 
+
 def normalize_list(val: str | list | None) -> list:
     """
     Ensures values are always returned as lists, regardless of input format.
@@ -40,6 +42,7 @@ def normalize_list(val: str | list | None) -> list:
     if val is None:
         return []
     return val if isinstance(val, list) else [val]
+
 
 @dataclass
 class Meta:
@@ -65,6 +68,7 @@ class Meta:
             version=d.get("version", "1.0"),
         )
 
+
 @dataclass
 class Variant:
     name: Optional[str] = None
@@ -89,6 +93,7 @@ class Variant:
             where=data.get("where", {}),
         )
 
+
 @dataclass
 class RuleWrapper:
     meta: Meta
@@ -98,8 +103,9 @@ class RuleWrapper:
     def to_dict(self) -> dict[str, Any]:
         return {
             "meta": self.meta.__dict__,
-            "variant": self.variant.__dict__ | {"__source__": self.source}
+            "variant": self.variant.__dict__ | {"__source__": self.source},
         }
+
 
 def _resolve_rule_files(paths: list[Path]) -> list[Path]:
     files = []
@@ -109,6 +115,7 @@ def _resolve_rule_files(paths: list[Path]) -> list[Path]:
         elif path.suffix in (".yml", ".yaml"):
             files.append(path)
     return files
+
 
 def load_query_rules(paths: list[Path]) -> list[dict[str, Any]]:
     results = []

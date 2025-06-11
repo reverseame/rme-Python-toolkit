@@ -1,7 +1,10 @@
-import win32gui
 from typing import Callable
 
-from api_monitor_toolkit.core.exceptions import ChildControlsNotFound, MainWindowNotFound
+import win32gui
+from api_monitor_toolkit.core.exceptions import (
+    ChildControlsNotFound,
+    MainWindowNotFound,
+)
 from common.logger import get_logger
 
 logger = get_logger(__name__)

@@ -1,6 +1,6 @@
 import jmespath
-from ioc_extractor.rules.modifiers import apply_modifiers
 from common.logger import get_logger
+from ioc_extractor.rules.modifiers import apply_modifiers
 
 logger = get_logger(__name__)
 
