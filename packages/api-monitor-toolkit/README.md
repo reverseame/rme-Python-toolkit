@@ -11,62 +11,48 @@ git clone https://github.com/reverseame/rme-Python-toolkit.git
 cd rme-Python-toolkit/packages/api-monitor-toolkit
 ```
 
-### 2. Set Up the Environments
+### 2. Prepare the Environment
 
-Use the provided `Makefile` to create and install both 32-bit and 64-bit environments:
+This tool uses uv for environment management. You need to run it with a Python interpreter that matches the bitness (32-bit or 64-bit) of the target process you want to monitor.
 
 > [!IMPORTANT]
-> Make sure you have Python 3.13 32-bit and 64-bit installed, and their paths are correctly set in the Makefile.
-
-```bash
-make install32    # Create and install the 32-bit virtual environment
-make install64    # Create and install the 64-bit virtual environment
-```
-
-<details> <summary><strong>⚠️ Why both?</strong></summary>
-
-This toolkit reads memory directly from Windows applications (e.g., API Monitor) using low-level system APIs.
-Because of Windows architecture restrictions, you must use a Python interpreter with the same bitness (32 or 64) as the target application:
-- If the target process is 32-bit → you must run the scraper with Python 32-bit.
-- If the target process is 64-bit → you must run the scraper with Python 64-bit.
-That's why this project uses two separate virtual environments: one for each architecture.
-</details>
+> Ensure that you have the correct version of Python installed (32-bit or 64-bit), depending on the architecture of the target process.
 
 ### 3. Run the Tool
 
-Use the appropriate environment depending on the architecture of the target application:
-
-▶️ 64-bit Mode:
+You can run the tool with a specific Python interpreter using the `--python` flag. Example:
 
 ```bash
-make run64 ARGS="spider -p -c -o output.json -v"
+uv run --python "<path_to_python>" -- api-monitor-toolkit spider -p -c -o output.json -v
 ```
-
-▶️ 32-bit Mode:
 
 ```bash
-make run32 ARGS="spider -p -c -o output.json -v"
+uv run api-monitor-toolkit analyzer -i <path_to_exe> -v
 ```
 
----
+> [!TIP]
+> you can use `uv python list` to list your environments
 
-```bash
-uv run api-monitor-toolkit analyzer -i "C:\Users\htoral\Desktop\beep_g++_O0_windows_x86.exe"
-```
+Replace `<path_to_python>` with the path to your Python **32-bit** or **64-bit** interpreter.
+
+<details> 
+<summary>
+<strong>⚠️ Why bitness matters?</strong>
+</summary>
+
+This toolkit reads memory directly from API Monitor using low-level system APIs.
+Because of Windows architecture restrictions, you must use a Python interpreter with the same bitness (32 or 64) as the target application:
+- If the target process is 32-bit → you must run the scraper with Python 32-bit.
+- If the target process is 64-bit → you must run the scraper with Python 64-bit.
+
+</details>
 
 ## ✨ Features
 
 - Extracts detailed API call information from API Monitor.
 - Supports selective retrieval of Parameters and Call Stack sections.
 - Multiple output modes: streaming JSON to stdout, save as file, or HTTP POST.
-- Automatic detection of target process architecture (32/64-bit).
 - Verbose logging with incremental output to handle large datasets efficiently.
-
-## 🚀 Usage Example
-
-```bash
-uv run api-monitor-toolkit spider --parameters --call-stack -o output.json -v
-```
 
 ## 📂 Output
 

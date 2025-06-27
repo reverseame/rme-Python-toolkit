@@ -4,6 +4,7 @@ import typer
 from api_monitor_toolkit.services.spider_controller import SpiderController
 from api_monitor_toolkit.output.handler import get_output_handler
 from common.callbacks import verbose_callback
+from common.checks import is_admin, check_python, check_process_arch
 from common.logger import get_logger
 
 logger = get_logger(__name__)
@@ -29,8 +30,11 @@ def spider(
     """
     Extract information from API Monitor's UI tree view (previously captured trace).
     """
-    logger.info("Starting spider...")
+    flag_admin = is_admin()
+    var_python = check_python()
+    # var_target = check_process_arch()
 
+    logger.info("Starting spider...")
     handler = get_output_handler(output)
     controller = SpiderController(
         include_params=parameters,
