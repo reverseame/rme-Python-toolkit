@@ -23,12 +23,13 @@ This tool uses uv for environment management. You need to run it with a Python i
 You can run the tool with a specific Python interpreter using the `--python` flag. Example:
 
 ```bash
-uv run --python "<path_to_python>" -- api-monitor-toolkit spider -p -c -o output.json -v
+uv run api-monitor-toolkit analyzer -i <path_to_exe> -v
 ```
 
 ```bash
-uv run api-monitor-toolkit analyzer -i <path_to_exe> -v
+uv run --python "<path_to_python>" -- api-monitor-toolkit spider -i <path_to_apmx> -p -c -o output.json -v
 ```
+
 
 > [!TIP]
 > you can use `uv python list` to list your environments
