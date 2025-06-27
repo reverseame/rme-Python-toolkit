@@ -9,12 +9,8 @@ from flask import Flask, jsonify, render_template
 # Initialize Flask app with custom template and static folder paths
 app = Flask(
     __name__,
-    template_folder=str(
-        (Path(__file__).resolve().parent.parent / "ui").resolve()
-    ),
-    static_folder=str(
-        (Path(__file__).resolve().parent.parent / "ui/static").resolve()
-    ),
+    template_folder=str((Path(__file__).resolve().parent.parent / "ui").resolve()),
+    static_folder=str((Path(__file__).resolve().parent.parent / "ui/static").resolve()),
 )
 
 # Global graph instance (loaded once per run)
@@ -93,32 +89,46 @@ def load_graph(input_file: str):
         var_id = f"variant::{category_name}::{rule_name}::{variant_name}"
 
         api_name = ev.get("api", "unknown")
-        api_id = f"api::{category_name}::{rule_name}::{variant_name or 'direct'}::{api_name}"
+        api_id = (
+            f"api::{category_name}::{rule_name}::{variant_name or 'direct'}::{api_name}"
+        )
 
         # Register API call attributes for grouping later
         api_instance_map[api_id].append(ev.get("attributes", {}))
 
         # Create hierarchy: root → category → rule → (variant) → api
         if not G.has_node(cat_id):
-            G.add_node(cat_id, label=category_name, type="category",
-                       description=rule_tx.get("description", ""),
-                       tags=rule_tx.get("tags", []))
+            G.add_node(
+                cat_id,
+                label=category_name,
+                type="category",
+                description=rule_tx.get("description", ""),
+                tags=rule_tx.get("tags", []),
+            )
         G.add_edge("root", cat_id)
 
         if not G.has_node(rule_id):
-            G.add_node(rule_id, label=rule_name, type="rule_group",
-                       description=rule_tx.get("description", ""),
-                       mbcs=rule_tx.get("mbcs", []),
-                       attck=rule_tx.get("attck", []))
+            G.add_node(
+                rule_id,
+                label=rule_name,
+                type="rule_group",
+                description=rule_tx.get("description", ""),
+                mbcs=rule_tx.get("mbcs", []),
+                attck=rule_tx.get("attck", []),
+            )
         G.add_edge(cat_id, rule_id)
 
         parent = rule_id
         if variant_name and variant_name.strip() and variant_name != rule_name:
             if not G.has_node(var_id):
-                G.add_node(var_id, label=variant_name, type="rule_variant",
-                           description=var_tx.get("description", ""),
-                           mbcs=var_tx.get("mbcs", []),
-                           attck=var_tx.get("attck", []))
+                G.add_node(
+                    var_id,
+                    label=variant_name,
+                    type="rule_variant",
+                    description=var_tx.get("description", ""),
+                    mbcs=var_tx.get("mbcs", []),
+                    attck=var_tx.get("attck", []),
+                )
             G.add_edge(rule_id, var_id)
             parent = var_id
 
@@ -137,9 +147,13 @@ def load_graph(input_file: str):
         for hash_key, group in grouped.items():
             detail_id = f"detail::{api_id}::{hash_key}"
             label = "Call"
-            G.add_node(detail_id, label=label, type="api_detail",
-                       arguments=group[0],  # representative example
-                       count=len(group))
+            G.add_node(
+                detail_id,
+                label=label,
+                type="api_detail",
+                arguments=group[0],  # representative example
+                count=len(group),
+            )
             G.add_edge(api_id, detail_id)
 
     # Assign count to each node

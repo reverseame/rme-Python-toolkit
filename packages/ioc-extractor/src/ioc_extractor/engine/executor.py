@@ -2,7 +2,9 @@ from ioc_extractor.engine.matcher import evaluate_conditions
 from ioc_extractor.engine.selector import process_select
 
 
-def extract_taxonomy(obj: dict, include: list[str] | None = None, exclude: list[str] | None = None) -> dict:
+def extract_taxonomy(
+    obj: dict, include: list[str] | None = None, exclude: list[str] | None = None
+) -> dict:
     """
     Extracts a subset of keys from the given object.
     - If `include` is None or empty, all keys are considered.
@@ -50,17 +52,12 @@ def execute_rule(entry: dict, rule: dict, source_file: str) -> dict | None:
         "attributes": fields,
         "rule": {
             "name": rule_name,
-            "variant": None if variant_name == rule_name else variant_name
+            "variant": None if variant_name == rule_name else variant_name,
         },
-        "metadata": {
-            k: meta[k] for k in ("version", "authors") if k in meta
-        },
+        "metadata": {k: meta[k] for k in ("version", "authors") if k in meta},
         "taxonomy": {
             "rule": extract_taxonomy(meta, include=taxonomy_fields),
-            "variant": extract_taxonomy(variant, include=taxonomy_fields)
+            "variant": extract_taxonomy(variant, include=taxonomy_fields),
         },
-        "sources": {
-            "input": source_file,
-            "rule": variant.get("__source__")
-        }
+        "sources": {"input": source_file, "rule": variant.get("__source__")},
     }

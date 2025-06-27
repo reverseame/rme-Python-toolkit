@@ -1,4 +1,5 @@
 import typer
+
 from common.logger import configure_logger
 
 

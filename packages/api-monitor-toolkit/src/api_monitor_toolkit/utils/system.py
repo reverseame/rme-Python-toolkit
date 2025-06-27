@@ -1,5 +1,7 @@
-import pefile
 from pathlib import Path
+
+import pefile
+
 
 def detect_architecture(binary_path: Path) -> str:
     pe = pefile.PE(str(binary_path))

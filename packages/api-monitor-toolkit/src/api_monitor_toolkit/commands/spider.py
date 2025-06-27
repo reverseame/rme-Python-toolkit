@@ -1,18 +1,20 @@
-from typing import Annotated
-import typer
-from pathlib import Path
 import time
+from pathlib import Path
+from typing import Annotated
+
+import typer
 import win32com.client
-from api_monitor_toolkit.services.spider_controller import SpiderController
+from api_monitor_toolkit.core.monitor import send_text, set_foreground, wait_for_window
+from api_monitor_toolkit.core.runner import close_monitor, launch_monitor
 from api_monitor_toolkit.output.handler import get_output_handler
-from api_monitor_toolkit.core.runner import launch_monitor, close_monitor
-from api_monitor_toolkit.core.monitor import wait_for_window, set_foreground, send_text
+from api_monitor_toolkit.services.spider_controller import SpiderController
 from common.callbacks import verbose_callback
-from common.checks import is_admin, check_python
+from common.checks import check_python, is_admin
 from common.logger import get_logger
 
 logger = get_logger(__name__)
 app = typer.Typer()
+
 
 def detect_apmx_arch(apmx_path: Path) -> str:
     """
@@ -25,8 +27,11 @@ def detect_apmx_arch(apmx_path: Path) -> str:
     elif suffix == ".apmx86":
         return "x86"
     else:
-        logger.error(f"Unsupported trace file extension '{suffix}'. Must be .apmx64 or .apmx86.")
+        logger.error(
+            f"Unsupported trace file extension '{suffix}'. Must be .apmx64 or .apmx86."
+        )
         raise typer.Exit(code=1)
+
 
 def load_apmx(shell, apmx_path: Path, timeout=2.5):
     time.sleep(timeout)
@@ -36,9 +41,12 @@ def load_apmx(shell, apmx_path: Path, timeout=2.5):
     shell.SendKeys("{ENTER}")
     time.sleep(timeout)
 
+
 @app.command()
 def spider(
-    input: Annotated[Path, typer.Option("-i", "--input", exists=True, help="Path to the apmx file")] = None,
+    input: Annotated[
+        Path, typer.Option("-i", "--input", exists=True, help="Path to the apmx file")
+    ] = None,
     parameters: Annotated[bool, typer.Option("-p", "--parameters")] = False,
     call_stack: Annotated[bool, typer.Option("-c", "--call-stack")] = False,
     output: Annotated[str, typer.Option("-o", "--output")] = None,
@@ -67,6 +75,7 @@ def spider(
     check_python()
 
     try:
+        handler = get_output_handler(output)
         proc = None
         if input:
             arch = detect_apmx_arch(input)
@@ -80,7 +89,6 @@ def spider(
             load_apmx(shell, input.resolve(), timeout=2.5)
 
         logger.info("Starting spider...")
-        handler = get_output_handler(output)
         controller = SpiderController(
             include_params=parameters,
             include_stack=call_stack,

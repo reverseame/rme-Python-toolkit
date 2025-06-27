@@ -49,9 +49,11 @@ def parse_numeric(val: Any) -> float | None:
     except (ValueError, TypeError):
         return None
 
+
 # ──────────────────────────────
 # Basic Comparison Operators
 # ──────────────────────────────
+
 
 @register_operator("eq")
 def op_eq(value: Any, operand: Any) -> bool:
@@ -61,11 +63,13 @@ def op_eq(value: Any, operand: Any) -> bool:
         return v == o
     return value == operand
 
+
 @register_operator("gt")
 def op_gt(value: Any, operand: Any) -> bool:
     v = parse_numeric(value)
     o = parse_numeric(operand)
     return v is not None and o is not None and v > o
+
 
 @register_operator("gte")
 def op_gte(value: Any, operand: Any) -> bool:
@@ -73,11 +77,13 @@ def op_gte(value: Any, operand: Any) -> bool:
     o = parse_numeric(operand)
     return v is not None and o is not None and v >= o
 
+
 @register_operator("lt")
 def op_lt(value: Any, operand: Any) -> bool:
     v = parse_numeric(value)
     o = parse_numeric(operand)
     return v is not None and o is not None and v < o
+
 
 @register_operator("lte")
 def op_lte(value: Any, operand: Any) -> bool:
@@ -85,25 +91,31 @@ def op_lte(value: Any, operand: Any) -> bool:
     o = parse_numeric(operand)
     return v is not None and o is not None and v <= o
 
+
 # ──────────────────────────────
 # String & Pattern Operators
 # ──────────────────────────────
+
 
 @register_operator("contains")
 def op_contains(value: str, operand: str) -> bool:
     return operand in value
 
+
 @register_operator("not_contains")
 def op_not_contains(value: str, operand: str) -> bool:
     return operand not in value
+
 
 @register_operator("startswith")
 def op_startswith(value: str, operand: str) -> bool:
     return value.startswith(operand)
 
+
 @register_operator("endswith")
 def op_endswith(value: str, operand: str) -> bool:
     return value.endswith(operand)
+
 
 @register_operator("regex")
 def op_regex(value: str, pattern: Union[str, re.Pattern]) -> bool:
@@ -111,41 +123,51 @@ def op_regex(value: str, pattern: Union[str, re.Pattern]) -> bool:
         return bool(pattern.search(value))
     return bool(re.search(pattern, value))
 
+
 # ──────────────────────────────
 # Set & Existence Operators
 # ──────────────────────────────
+
 
 @register_operator("in")
 def op_in(value: Any, operand: list[Any]) -> bool:
     return value in operand
 
+
 @register_operator("not_in")
 def op_not_in(value: Any, operand: list[Any]) -> bool:
     return value not in operand
+
 
 @register_operator("exists")
 def op_exists(value: Any) -> bool:
     return value is not None and value != ""
 
+
 @register_operator("not_exists")
 def op_not_exists(value: Any) -> bool:
     return value is None or value == ""
+
 
 # ──────────────────────────────
 # List Matching Operators
 # ──────────────────────────────
 
+
 @register_operator("match_all")
 def op_match_all(value: Any, allowed: list[Any]) -> bool:
     return isinstance(value, list) and all(item in allowed for item in value)
+
 
 @register_operator("match_any")
 def op_match_any(value: Any, allowed: list[Any]) -> bool:
     return isinstance(value, list) and any(item in allowed for item in value)
 
+
 # ──────────────────────────────
 # Range Operator
 # ──────────────────────────────
+
 
 @register_operator("range")
 def op_range(value: Any, bounds: list[Any]) -> bool:

@@ -15,6 +15,7 @@ from ioc_extractor.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def compute_chunk_size(
     path: str,
     rules: list[dict[str, Any]],
@@ -45,6 +46,7 @@ def compute_chunk_size(
         logger.error(f"Error computing chunk size for {path}: {e}", exc_info=True)
         return min_size
 
+
 def sample_entries(path: str, count: int = 50) -> list[dict[str, Any]]:
     """Read up to `count` entries from a JSON array."""
     logger.debug(f"Sampling up to {count} entries from file: {path}")
@@ -59,7 +61,10 @@ def sample_entries(path: str, count: int = 50) -> list[dict[str, Any]]:
         logger.error(f"Failed to sample entries from {path}: {e}", exc_info=True)
     return batch
 
-def worker_task(batch: list[dict], rules: list[dict], source_file: str) -> tuple[dict[str, int], list[dict]]:
+
+def worker_task(
+    batch: list[dict], rules: list[dict], source_file: str
+) -> tuple[dict[str, int], list[dict]]:
     """Apply all rules to a batch and return match counts and results."""
     local_counts = defaultdict(int)
     local_matches = []
@@ -73,8 +78,12 @@ def worker_task(batch: list[dict], rules: list[dict], source_file: str) -> tuple
                 break
     return local_counts, local_matches
 
-def start_producer(inputs: list[str], chunk_sizes: dict[str, int], task_queue: Queue, workers: int) -> None:
+
+def start_producer(
+    inputs: list[str], chunk_sizes: dict[str, int], task_queue: Queue, workers: int
+) -> None:
     """Start a background thread to feed chunks to the processing queue."""
+
     def producer():
         try:
             for infile in inputs:
@@ -89,6 +98,7 @@ def start_producer(inputs: list[str], chunk_sizes: dict[str, int], task_queue: Q
             logger.error(f"Error in producer thread: {e}", exc_info=True)
 
     Thread(target=producer, daemon=True).start()
+
 
 def handle_completed_task(
     future, source_file, agg_counts, matches, temp_output, first_written
@@ -105,10 +115,11 @@ def handle_completed_task(
 
     for match in chunk_matches:
         print_match(
-            match_type=match["rule"].get("name", "unnamed") + ("::" + match["rule"]["variant"] if match["rule"].get("variant") else ""),
+            match_type=match["rule"].get("name", "unnamed")
+            + ("::" + match["rule"]["variant"] if match["rule"].get("variant") else ""),
             api=match.get("api", "?"),
             source_file=match.get("sources", {}).get("input", "?"),
-            selected_fields=match.get("attributes", {})
+            selected_fields=match.get("attributes", {}),
         )
 
         if temp_output:
@@ -120,6 +131,7 @@ def handle_completed_task(
             matches.append(match)
 
     return first_written
+
 
 def run_pipeline(
     inputs: list[str],
@@ -145,7 +157,9 @@ def run_pipeline(
             temp_output.write("[")
             logger.info(f"Writing results to {output_path}")
         except Exception as e:
-            logger.error(f"Failed to open output file '{output_path}': {e}", exc_info=True)
+            logger.error(
+                f"Failed to open output file '{output_path}': {e}", exc_info=True
+            )
             temp_output = None
 
     with ProcessPoolExecutor(max_workers=workers) as executor:

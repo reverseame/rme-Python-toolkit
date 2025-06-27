@@ -15,6 +15,7 @@ def read_json_chunks(path, chunk_size):
         if chunk:
             yield chunk
 
+
 def file_sha256(path: str) -> str:
     hasher = hashlib.sha256()
     with open(path, "rb") as f:
