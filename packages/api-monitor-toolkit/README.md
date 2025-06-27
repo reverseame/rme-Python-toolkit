@@ -83,7 +83,7 @@ The tool outputs structured JSON data including:
             "name": "lpCriticalSection",
             "before": "0x00007ff787e27100 = { DebugInfo = NULL, LockCount = 0, RecursionCount = 0  ...}",
             "after": "0x00007ff787e27100 = { DebugInfo = 0xffffffffffffffff, LockCount = -1, RecursionCount = 0  ...}"
-            }
+            },...
         ],
         "call_stack": [
             {
@@ -93,7 +93,12 @@ The tool outputs structured JSON data including:
                 "offset": "0x1d18",
                 "location": "undefined"
             },...
-        ]
+        ],
+        "metadata": {
+            "path": "C:\\Users\\htoral\\Desktop\\beep_g++_O0_windows_x64.exe", 
+            "filename": "beep_g++_O0_windows_x64.exe", 
+            "pid": 4444
+        }
     }
 ]
 ```

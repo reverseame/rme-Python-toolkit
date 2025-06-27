@@ -2,6 +2,7 @@ import time
 import win32con
 import win32gui
 import pyperclip
+import shlex
 from pathlib import Path
 from api_monitor_toolkit.core.discovery import find_main_window
 from common.logger import get_logger
