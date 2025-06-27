@@ -129,7 +129,7 @@ celerybeat.pid
 
 # Environments
 .env*
-!.env.template
+!.env.sample
 .venv*
 env/
 venv/
@@ -177,3 +177,7 @@ cython_debug/
 # uv misc
 uv*
 **/output
+
+# Packages files
+hashes.txt
+output.json

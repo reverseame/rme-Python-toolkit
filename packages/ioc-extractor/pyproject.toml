@@ -6,6 +6,7 @@ readme = "README.md"
 authors = [{ name = "Hec7orci7o" }]
 requires-python = ">=3.12"
 dependencies = [
+    "common",
     "networkx",
     "flask",
     "humanfriendly",
@@ -19,6 +20,9 @@ dependencies = [
     "typer==0.12.3",
     "click<8.2",
 ]
+
+[tool.uv.sources]
+common = { workspace = true }
 
 [project.scripts]
 ioc-extractor = "ioc_extractor.__init__:app"

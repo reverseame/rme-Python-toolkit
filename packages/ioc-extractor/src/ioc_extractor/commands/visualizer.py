@@ -2,9 +2,9 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from ioc_extractor.utils.callbacks import verbose_callback
+from common.callbacks import verbose_callback
+from common.logger import get_logger
 from ioc_extractor.utils.graph_server import serve_graph
-from ioc_extractor.utils.logger import get_logger
 
 logger = get_logger(__name__)
 app = typer.Typer()
