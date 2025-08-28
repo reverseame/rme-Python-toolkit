@@ -1,5 +1,7 @@
 import re
 import time
+from rich.progress import Progress, BarColumn, TimeElapsedColumn, TimeRemainingColumn, MofNCompleteColumn
+import sys
 from pathlib import Path
 from typing import Any, Callable, Optional
 
@@ -92,30 +94,40 @@ class SpiderController:
             total = win32gui.SendMessage(listview, cc.LVM_GETITEMCOUNT, 0, 0)
             logger.info(f"{total} entries found for {metadata['filename']}")
 
-            for i in range(total):
-                row = view._read_row(i, len(headers))
-                entry = {
-                    (
-                        mapped := SUMMARY_MAPPING.get(names[j], names[j])
-                    ): self.transformer.transform(mapped, row[col])
-                    for j, col in enumerate(indices)
-                }
+            with Progress(
+                "[progress.description]{task.description}",
+                BarColumn(),
+                MofNCompleteColumn(),
+                TimeElapsedColumn(),
+                TimeRemainingColumn(),
+                transient=False,
+            ) as progress:
+                task = progress.add_task("Progress", total=total)
+                for i in range(total):
+                    row = view._read_row(i, len(headers))
+                    entry = {
+                        (
+                            mapped := SUMMARY_MAPPING.get(names[j], names[j])
+                        ): self.transformer.transform(mapped, row[col])
+                        for j, col in enumerate(indices)
+                    }
 
-                view.select(i)
-                if self.include_params:
-                    entry["parameters"] = self._get_mapped_panel_data(
-                        main_hwnd,
-                        "Parameters",
-                        PARAMS_MAPPING,
-                        skip_penultimate_empty=True,
-                    )
-                if self.include_stack:
-                    entry["call_stack"] = self._get_mapped_panel_data(
-                        main_hwnd, "Call Stack", CALLSTACK_MAPPING
-                    )
+                    view.select(i)
+                    if self.include_params:
+                        entry["parameters"] = self._get_mapped_panel_data(
+                            main_hwnd,
+                            "Parameters",
+                            PARAMS_MAPPING,
+                            skip_penultimate_empty=True,
+                        )
+                    if self.include_stack:
+                        entry["call_stack"] = self._get_mapped_panel_data(
+                            main_hwnd, "Call Stack", CALLSTACK_MAPPING
+                        )
 
-                entry["metadata"] = metadata
-                self.output.write(entry)
+                    entry["metadata"] = metadata
+                    self.output.write(entry)
+                    progress.update(task, advance=1)
 
     def _wait_for_list_data(
         self, listview_hwnd: int, retries: int = 5, delay: float = 0.2
