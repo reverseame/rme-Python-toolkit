@@ -27,9 +27,15 @@ uv run api-monitor-toolkit analyzer -i <path_to_exe> -v
 ```
 
 ```bash
-uv run --python "<path_to_python>" -- api-monitor-toolkit spider -i <path_to_apmx> -p -c -o output.json -v
+$env:PYTHON64 = "..."
+uv run --python "$env:PYTHON64" -- api-monitor-toolkit spider -i <path_to_apmx> -p -c -o output.json -v
 ```
 
+If you have more than one `.apmx` file to extract, you can use this one-liner in PowerShell to automate the extraction:
+
+```powershell
+Get-ChildItem .\samples -Filter *.apmx64 | ForEach-Object { uv run --python "$env:PYTHON64" -- api-monitor-toolkit spider -i $_.FullName -p -r "C:\\rohitab.com\\API Monitor\\" -c -o "$($_.BaseName).json" -v }
+```
 
 > [!TIP]
 > you can use `uv python list` to list your environments
