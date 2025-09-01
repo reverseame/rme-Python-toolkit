@@ -23,7 +23,7 @@ This tool uses uv for environment management. You need to run it with a Python i
 You can run the tool with a specific Python interpreter using the `--python` flag. Example:
 
 ```bash
-uv run api-monitor-toolkit analyzer -i <path_to_exe> -v
+uv run --python "$env:PYTHON64" -- api-monitor-toolkit analyzer -i <path_to_exe> -v
 ```
 
 ```bash
